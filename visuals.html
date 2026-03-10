@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Visuals — Freddie Freeloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0e0a0a;--bg2:#130c0c;
+      --accent:#c8a96e;--accent2:#7ecac8;
+      --text:#e8ddd0;--muted:#6b5a52;--border:#261818;
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.03;pointer-events:none;z-index:9999}
+
+    nav{display:flex;justify-content:space-between;align-items:center;padding:2rem 4rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(14,10,10,.93);backdrop-filter:blur(14px);z-index:200}
+    .nav-logo{font-family:'Playfair Display',serif;font-size:2.1rem;letter-spacing:.12em;color:var(--accent);text-decoration:none}
+    .nav-links{display:flex;gap:2.5rem;list-style:none}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;transition:color .2s}
+    .nav-links a:hover,.nav-links a.active{color:var(--accent)}
+
+    .hero{padding:5rem 4rem 2.5rem;animation:fadeUp .8s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+    .hero-label{font-size:.65rem;letter-spacing:.32em;text-transform:uppercase;color:var(--accent2);display:block;margin-bottom:.6rem}
+    .hero-name{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5.5vw,5rem);line-height:.95;font-weight:700}
+    .hero-name em{font-style:italic;color:var(--accent)}
+
+    .section-block{margin-bottom:5rem}
+    .section-head{display:flex;align-items:baseline;justify-content:space-between;padding:3rem 4rem 1.4rem;border-top:1px solid var(--border)}
+    .section-title{font-size:.62rem;letter-spacing:.38em;text-transform:uppercase;color:var(--muted)}
+    .section-meta{font-size:.58rem;letter-spacing:.18em;color:var(--border)}
+
+    .zine-grid,.poster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;padding:0 4rem}
+    .graphics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;padding:0 4rem;grid-auto-rows:8px}
+
+    .vcard{position:relative;background:var(--bg2);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .35s,box-shadow .35s}
+    .vcard:hover{border-color:rgba(200,169,110,.4);box-shadow:0 6px 32px rgba(0,0,0,.55)}
+    .zine-card,.poster-card{aspect-ratio:2/3}
+
+    .card-art{width:100%;height:100%;overflow:hidden;position:relative}
+    .card-art svg{width:100%;height:100%;display:block;transition:transform .6s cubic-bezier(.25,.46,.45,.94)}
+    .vcard:hover .card-art svg{transform:scale(1.025)}
+
+    .card-veil{position:absolute;inset:0;background:rgba(6,4,4,0);transition:background .32s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45rem;z-index:2}
+    .vcard:hover .card-veil{background:rgba(6,4,4,.78)}
+    .veil-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--text);text-align:center;padding:0 .9rem;line-height:1.2;opacity:0;transform:translateY(7px);transition:opacity .28s .04s,transform .28s .04s}
+    .veil-sub{font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);opacity:0;transform:translateY(5px);transition:opacity .28s .08s,transform .28s .08s}
+    .veil-acts{display:flex;gap:.45rem;margin-top:.35rem;opacity:0;transform:translateY(5px);transition:opacity .28s .12s,transform .28s .12s}
+    .vcard:hover .veil-title,.vcard:hover .veil-sub,.vcard:hover .veil-acts{opacity:1;transform:translateY(0)}
+    .vbtn{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;padding:.32rem .65rem;border:1px solid;background:none;cursor:pointer;transition:background .18s,color .18s}
+    .vbtn.open{border-color:var(--accent);color:var(--accent)}
+    .vbtn.open:hover{background:var(--accent);color:var(--bg)}
+    .vbtn.dl{border-color:var(--muted);color:var(--muted)}
+    .vbtn.dl:hover{border-color:var(--text);color:var(--text)}
+
+    .card-foot{padding:.6rem .8rem .55rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .cf-title{font-family:'Playfair Display',serif;font-size:.72rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:115px}
+    .cf-year{font-size:.5rem;letter-spacing:.14em;color:var(--muted);margin-top:.1rem}
+    .cf-dl{background:none;border:none;color:var(--muted);font-size:.58rem;cursor:pointer;padding:.15rem .25rem;transition:color .18s;font-family:'DM Mono',monospace}
+    .cf-dl:hover{color:var(--accent)}
+
+    /* ═══ BOOK OVERLAY ═══ */
+    #bookOverlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s ease}
+    #bookOverlay.open{opacity:1;pointer-events:auto}
+    #bookBackdrop{position:absolute;inset:0;background:rgba(4,2,2,.95);backdrop-filter:blur(28px)}
+
+    .book-close{position:fixed;top:1.8rem;right:2.5rem;z-index:600;background:none;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;padding:.42rem .8rem;cursor:pointer;transition:border-color .2s,color .2s,opacity .35s;opacity:0;pointer-events:none}
+    #bookOverlay.open .book-close{opacity:1;pointer-events:auto}
+    .book-close:hover{border-color:var(--accent);color:var(--accent)}
+
+    .book-scene{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.6rem;transform:translateY(18px) scale(.98);opacity:0;transition:transform .45s .08s cubic-bezier(.25,.46,.45,.94),opacity .45s .08s ease}
+    #bookOverlay.open .book-scene{transform:translateY(0) scale(1);opacity:1}
+
+    /* Book container — expands from single to double page */
+    #bookContainer{position:relative;height:min(73vh,530px);width:min(36.5vh,265px);transition:width .55s cubic-bezier(.4,0,.2,1)}
+    #bookContainer.spread{width:min(73vh,530px)}
+
+    /* Shadow under whole book */
+    #bookContainer::after{content:'';position:absolute;bottom:-18px;left:5%;width:90%;height:20px;background:rgba(0,0,0,.5);filter:blur(12px);border-radius:50%;pointer-events:none}
+
+    /* Pages */
+    .b-page{position:absolute;top:0;height:100%;overflow:hidden}
+
+    /* Right page */
+    #pageR{right:0;width:100%;border-radius:0 2px 2px 0;background:#f2ebe0;
+      box-shadow:5px 5px 28px rgba(0,0,0,.65),inset -2px 0 0 rgba(0,0,0,.08);
+      transition:width .55s cubic-bezier(.4,0,.2,1),border-radius .55s,box-shadow .55s}
+    #bookContainer.spread #pageR{width:50%;left:50%;border-radius:0 2px 2px 0;box-shadow:2px 5px 18px rgba(0,0,0,.35)}
+
+    /* Left page */
+    #pageL{left:0;width:50%;border-radius:2px 0 0 2px;background:#eee8dc;
+      box-shadow:-4px 5px 18px rgba(0,0,0,.35),inset 1px 0 0 rgba(0,0,0,.06);
+      transform-origin:right center;transform:scaleX(0);opacity:0;
+      transition:transform .5s .08s cubic-bezier(.4,0,.2,1),opacity .38s .12s}
+    #bookContainer.spread #pageL{transform:scaleX(1);opacity:1}
+
+    /* Spine */
+    .b-spine{position:absolute;top:0;left:50%;transform:translateX(-50%);width:7px;height:100%;
+      background:linear-gradient(to right,rgba(0,0,0,.28) 0%,rgba(255,255,255,.05) 50%,rgba(0,0,0,.28) 100%);
+      z-index:4;pointer-events:none;opacity:0;transition:opacity .3s .35s}
+    #bookContainer.spread .b-spine{opacity:1}
+
+    /* Inner shadow on right page left edge when spread */
+    #pageR::before{content:'';position:absolute;top:0;left:0;width:20px;height:100%;
+      background:linear-gradient(to right,rgba(0,0,0,.22),transparent);z-index:3;opacity:0;
+      transition:opacity .35s .25s}
+    #bookContainer.spread #pageR::before{opacity:1}
+
+    /* Page curl right edge illusion on left page */
+    #pageL::after{content:'';position:absolute;top:0;right:0;width:12px;height:100%;
+      background:linear-gradient(to left,rgba(0,0,0,.1),transparent);z-index:3}
+
+    .b-page svg{width:100%;height:100%;display:block}
+
+    /* Nav arrows */
+    .b-nav{position:absolute;top:50%;transform:translateY(-50%);background:none;border:1px solid var(--border);
+      color:var(--muted);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;cursor:pointer;transition:border-color .2s,color .2s,opacity .25s;z-index:10}
+    .b-nav:hover{border-color:var(--accent);color:var(--accent)}
+    .b-nav svg{width:12px;height:12px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    #btnPrev{left:-50px}
+    #btnNext{right:-50px}
+    .b-nav.gone{opacity:0;pointer-events:none}
+
+    .book-bar{display:flex;align-items:center;gap:1.4rem}
+    .b-ind{font-size:.54rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+    .b-ind em{color:var(--accent);font-style:normal}
+    .b-dl{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;
+      padding:.35rem .75rem;border:1px solid var(--border);color:var(--muted);background:none;cursor:pointer;transition:border-color .2s,color .2s}
+    .b-dl:hover{border-color:var(--accent);color:var(--accent)}
+    .b-hint{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);opacity:.28;text-align:center}
+
+    footer{border-top:1px solid var(--border);padding:2rem 4rem;display:flex;justify-content:space-between;font-size:.62rem;letter-spacing:.15em;color:var(--muted)}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">FФ.</a>
+  <ul class="nav-links">
+    <li><a href="poetry.html">Poetry</a></li>
+    <li><a href="visuals.html" class="active">Visuals</a></li>
+    <li><a href="photography.html">Photography</a></li>
+    <li><a href="#">Contact</a></li>
+    <li><a href="#">About</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <span class="hero-label">Visual World</span>
+  <h1 class="hero-name">Vi<em>suals</em></h1>
+</div>
+
+<div class="section-block">
+  <div class="section-head"><span class="section-title">Zines</span><span class="section-meta" id="zineCount"></span></div>
+  <div class="zine-grid" id="zineGrid"></div>
+</div>
+<div class="section-block">
+  <div class="section-head"><span class="section-title">Graphics</span><span class="section-meta" id="gfxCount"></span></div>
+  <div class="graphics-grid" id="gfxGrid"></div>
+</div>
+<div class="section-block">
+  <div class="section-head"><span class="section-title">Posters</span><span class="section-meta" id="postCount"></span></div>
+  <div class="poster-grid" id="postGrid"></div>
+</div>
+
+<footer><span>© 2024 Freddie Freeloader</span><span>Visuals</span></footer>
+
+<!-- BOOK OVERLAY -->
+<div id="bookOverlay">
+  <div id="bookBackdrop"></div>
+  <button class="book-close" onclick="closeBook()">Close ✕</button>
+  <div class="book-scene">
+    <div id="bookContainer">
+      <div class="b-spine"></div>
+      <div class="b-page" id="pageL"><svg id="svgL" viewBox="0 0 265 400" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <div class="b-page" id="pageR"><svg id="svgR" viewBox="0 0 265 400" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <button class="b-nav gone" id="btnPrev" onclick="turnPage(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="b-nav" id="btnNext" onclick="turnPage(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <div class="book-bar">
+      <div class="b-ind" id="bInd"><em>Cover</em></div>
+      <button class="b-dl" onclick="dlActiveZine()">↓ Download Zine</button>
+    </div>
+    <div class="b-hint">← → to turn pages &nbsp;·&nbsp; click outside to close</div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   UTILITY
+════════════════════════════════════════════════ */
+const R=(min,max)=>min+Math.random()*(max-min);
+const uid=()=>Math.random().toString(36).slice(2,6);
+function wrap(inner,W,H){return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${inner}</svg>`;}
+function dlSvg(svgStr, name){
+  const b=new Blob([svgStr],{type:'image/svg+xml'});
+  const u=URL.createObjectURL(b);const a=document.createElement('a');
+  a.href=u;a.download=name+'.svg';a.click();URL.revokeObjectURL(u);
+}
+
+/* ════════════════════════════════════════════════
+   POSTER ART GENERATORS  (W×H, dark background)
+════════════════════════════════════════════════ */
+function pArt_city(W,H,bg,fg,ac){
+  const id=uid();
+  const bldgs=Array.from({length:14},(_,i)=>{
+    const bw=W*(R(.055,.1));const bx=W*(i/14)+R(-4,4);
+    const bh=H*(R(.15,.42));const by=H*.53-bh;
+    const wins=Array.from({length:Math.floor(R(2,6))},(_,j)=>{
+      const wx=bx+R(3,bw-6),wy=by+R(4,bh*.8);
+      return `<rect x="${wx}" y="${wy}" width="2.2" height="3.2" fill="${ac}" opacity="${R(.12,.28)}"/>`;
+    }).join('');
+    return `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="${bg}"/>${wins}`;
+  }).join('');
+  return `
+  <defs><radialGradient id="cg${id}" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="${ac}" stop-opacity=".22"/><stop offset="100%" stop-color="${bg}" stop-opacity="0"/></radialGradient></defs>
+  <rect width="${W}" height="${H}" fill="${bg}"/>
+  <rect width="${W}" height="${H}" fill="url(#cg${id})"/>
+  ${bldgs}
+  <rect x="0" y="${H*.53}" width="${W}" height="${H*.47}" fill="${bg}" opacity=".88"/>
+  <line x1="0" y1="${H*.53}" x2="${W}" y2="${H*.53}" stroke="${fg}" stroke-width=".5" opacity=".1"/>
+  <circle cx="${W*.76}" cy="${H*.16}" r="${W*.04}" fill="${fg}" opacity=".06"/>
+  <circle cx="${W*.76}" cy="${H*.16}" r="${W*.028}" fill="${fg}" opacity=".06"/>
+  <circle cx="${W*.783}" cy="${H*.153}" r="${W*.028}" fill="${bg}"/>
+  <text x="${W*.5}" y="${H*.67}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',Georgia,serif" font-size="${W*.11}" font-weight="700">NIGHT</text>
+  <text x="${W*.5}" y="${H*.79}" text-anchor="middle" fill="${ac}" font-family="'Playfair Display',Georgia,serif" font-size="${W*.075}" font-style="italic">Architecture</text>
+  <line x1="${W*.15}" y1="${H*.83}" x2="${W*.85}" y2="${H*.83}" stroke="${ac}" stroke-width=".5" opacity=".3"/>
+  <text x="${W*.5}" y="${H*.91}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.034}" letter-spacing="3" opacity=".2">FREDDIE FREELOADER · 2023</text>`;
+}
+
+function pArt_freq(W,H,bg,fg,ac){
+  const id=uid();
+  const bars=Array.from({length:48},(_,i)=>{
+    const x=W*.06+i*(W*.88/48);
+    const amp=(Math.sin(i*.55)*Math.cos(i*.27)+1)*.5;
+    const h=amp*H*.28+H*.03;
+    return `<rect x="${x}" y="${H*.52-h/2}" width="${W*.88/48-.6}" height="${h}" fill="${ac}" opacity="${.1+amp*.1}"/>`;
+  }).join('');
+  return `
+  <defs><linearGradient id="fg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${bg}"/><stop offset="100%" stop-color="${ac}" stop-opacity=".1"/></linearGradient></defs>
+  <rect width="${W}" height="${H}" fill="${bg}"/>
+  <rect width="${W}" height="${H}" fill="url(#fg${id})"/>
+  ${Array.from({length:Math.floor(H/4)},(_,i)=>`<line x1="0" y1="${i*4}" x2="${W}" y2="${i*4}" stroke="${fg}" stroke-width=".2" opacity=".04"/>`).join('')}
+  ${bars}
+  <line x1="${W*.06}" y1="${H*.52}" x2="${W*.94}" y2="${H*.52}" stroke="${ac}" stroke-width=".5" opacity=".22"/>
+  <circle cx="${W*.5}" cy="${H*.52}" r="${W*.28}" fill="none" stroke="${ac}" stroke-width=".4" opacity=".07"/>
+  <circle cx="${W*.5}" cy="${H*.52}" r="${W*.16}" fill="none" stroke="${ac}" stroke-width=".35" opacity=".09"/>
+  <ellipse cx="${W*.5}" cy="${H*.52}" rx="${W*.22}" ry="${H*.06}" fill="${ac}" opacity=".03"/>
+  <text x="${W*.5}" y="${H*.76}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.09}" font-style="italic">Frequency</text>
+  <text x="${W*.5}" y="${H*.85}" text-anchor="middle" fill="${ac}" font-family="monospace" font-size="${W*.042}" letter-spacing="5" opacity=".5">MAP · 2024</text>
+  <text x="${W*.5}" y="${H*.93}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.032}" letter-spacing="3" opacity=".18">FREDDIE FREELOADER</text>`;
+}
+
+function pArt_ceremony(W,H,bg,fg,ac){
+  const rings=Array.from({length:7},(_,i)=>`<circle cx="${W*.5}" cy="${H*.4}" r="${W*(.07+i*.09)}" fill="none" stroke="${ac}" stroke-width="${.55-i*.04}" opacity="${.2-i*.022}"/>`).join('');
+  const spokes=Array.from({length:12},(_,i)=>{const a=(i/12)*Math.PI*2;const r1=W*.07,r2=W*.63;return `<line x1="${W*.5+Math.cos(a)*r1}" y1="${H*.4+Math.sin(a)*r1}" x2="${W*.5+Math.cos(a)*r2}" y2="${H*.4+Math.sin(a)*r2}" stroke="${fg}" stroke-width=".28" opacity=".07"/>`;}).join('');
+  const corners=[[W*.09,H*.09,W*.19,H*.09,W*.09,H*.09,W*.09,H*.18],[W*.91,H*.09,W*.81,H*.09,W*.91,H*.09,W*.91,H*.18],[W*.09,H*.91,W*.19,H*.91,W*.09,H*.91,W*.09,H*.82],[W*.91,H*.91,W*.81,H*.91,W*.91,H*.91,W*.91,H*.82]].map(([x1,y1,x2,y2,x3,y3,x4,y4])=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${ac}" stroke-width=".5" opacity=".28"/><line x1="${x3}" y1="${y3}" x2="${x4}" y2="${y4}" stroke="${ac}" stroke-width=".5" opacity=".28"/>`).join('');
+  return `
+  <rect width="${W}" height="${H}" fill="${bg}"/>
+  ${corners}${rings}${spokes}
+  <circle cx="${W*.5}" cy="${H*.4}" r="${W*.032}" fill="${ac}" opacity=".25"/>
+  <circle cx="${W*.5}" cy="${H*.4}" r="${W*.016}" fill="${ac}" opacity=".45"/>
+  <text x="${W*.5}" y="${H*.73}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.09}" font-weight="700" letter-spacing="2">The</text>
+  <text x="${W*.5}" y="${H*.84}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.09}" font-weight="700" font-style="italic">Ceremony</text>
+  <text x="${W*.5}" y="${H*.93}" text-anchor="middle" fill="${ac}" font-family="monospace" font-size="${W*.034}" letter-spacing="4" opacity=".45">2023 · FF</text>`;
+}
+
+function pArt_dissolve(W,H,bg,fg,ac){
+  const stripes=Array.from({length:64},(_,i)=>{const y=i*(H/63);const op=Math.max(0,(Math.sin(i*.38+1)*.5+.5)*.2);return `<rect x="0" y="${y}" width="${W}" height="${H/63+.3}" fill="${fg}" opacity="${op}"/>`;}).join('');
+  return `
+  <rect width="${W}" height="${H}" fill="${bg}"/>
+  ${stripes}
+  <line x1="${W*.5}" y1="${H*.07}" x2="${W*.5}" y2="${H*.88}" stroke="${ac}" stroke-width=".45" opacity=".18"/>
+  <text x="${W*.5}" y="${H*.44}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.115}" font-weight="700" letter-spacing="2">SLOW</text>
+  <text x="${W*.5}" y="${H*.58}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.1}" font-weight="700" font-style="italic" opacity=".55">Dissolve</text>
+  <line x1="${W*.18}" y1="${H*.64}" x2="${W*.82}" y2="${H*.64}" stroke="${ac}" stroke-width=".5" opacity=".28"/>
+  <text x="${W*.5}" y="${H*.93}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.033}" letter-spacing="3" opacity=".18">FREDDIE FREELOADER</text>`;
+}
+
+function pArt_ground(W,H,bg,fg,ac){
+  const stars=Array.from({length:24},(_,i)=>`<circle cx="${W*R(.04,.96)}" cy="${H*R(.04,.44)}" r="${R(.6,1.5)}" fill="${fg}" opacity="${R(.08,.18)}"/>`).join('');
+  const bldg2=Array.from({length:6},(_,i)=>{const bw=W*R(.04,.07);const bx=W*(i/6)+R(0,W/7-bw);const bh=H*R(.03,.1);return `<rect x="${bx}" y="${H*.47-bh}" width="${bw}" height="${bh}" fill="${bg}" opacity=".7"/>`;}).join('');
+  return `
+  <rect width="${W}" height="${H}" fill="${bg}"/>
+  ${stars}${bldg2}
+  <rect x="0" y="${H*.47}" width="${W}" height=".7" fill="${fg}" opacity=".16"/>
+  ${Array.from({length:6},(_,i)=>`<line x1="0" y1="${H*(.5+i*.06)}" x2="${W}" y2="${H*(.5+i*.06)}" stroke="${fg}" stroke-width="${.28-i*.02}" opacity="${.07-i*.008}"/>`).join('')}
+  <rect x="${W*.488}" y="${H*.44}" width="${W*.014}" height="${H*.03}" fill="${fg}" opacity=".45"/>
+  <circle cx="${W*.495}" cy="${H*.438}" r="${W*.006}" fill="${fg}" opacity=".4"/>
+  <text x="${W*.5}" y="${H*.73}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.095}" font-weight="700">Open</text>
+  <text x="${W*.5}" y="${H*.845}" text-anchor="middle" fill="${ac}" font-family="'Playfair Display',serif" font-size="${W*.095}" font-weight="700" font-style="italic">Ground</text>
+  <text x="${W*.5}" y="${H*.93}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.033}" letter-spacing="3" opacity=".18">FREDDIE FREELOADER</text>`;
+}
+
+function pArt_signal(W,H,bg,fg,ac){
+  const id=uid();
+  return `
+  <defs><radialGradient id="sg${id}" cx="32%" cy="26%" r="52%"><stop offset="0%" stop-color="${ac}" stop-opacity=".26"/><stop offset="100%" stop-color="${bg}" stop-opacity="0"/></radialGradient></defs>
+  <rect width="${W}" height="${H}" fill="${bg}"/>
+  <rect width="${W}" height="${H}" fill="url(#sg${id})"/>
+  <rect x="${W*.19}" y="${H*.1}" width="${W*.62}" height="${H*.46}" fill="none" stroke="${fg}" stroke-width=".7" opacity=".13"/>
+  <line x1="${W*.5}" y1="${H*.1}" x2="${W*.5}" y2="${H*.56}" stroke="${fg}" stroke-width=".4" opacity=".1"/>
+  <line x1="${W*.19}" y1="${H*.33}" x2="${W*.81}" y2="${H*.33}" stroke="${fg}" stroke-width=".4" opacity=".1"/>
+  <rect x="${W*.2}" y="${H*.11}" width="${W*.6}" height="${H*.44}" fill="${ac}" opacity=".04"/>
+  <ellipse cx="${W*.5}" cy="${H*.33}" rx="${W*.18}" ry="${H*.1}" fill="${ac}" opacity=".055"/>
+  <rect x="${W*.19}" y="${H*.1}" width="${W*.055}" height="${H*.46}" fill="${bg}" opacity=".72"/>
+  <rect x="${W*.755}" y="${H*.1}" width="${W*.055}" height="${H*.46}" fill="${bg}" opacity=".72"/>
+  <line x1="0" y1="${H*.78}" x2="${W}" y2="${H*.78}" stroke="${fg}" stroke-width=".35" opacity=".07"/>
+  <text x="${W*.5}" y="${H*.68}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.075}" font-weight="700">Interior</text>
+  <text x="${W*.5}" y="${H*.79}" text-anchor="middle" fill="${ac}" font-family="'Playfair Display',serif" font-size="${W*.075}" font-weight="700" font-style="italic">Signal</text>
+  <text x="${W*.5}" y="${H*.93}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.033}" letter-spacing="3" opacity=".18">FREDDIE FREELOADER</text>`;
+}
+
+/* ════════════════════════════════════════════════
+   GRAPHIC ART  (mixed AR)
+════════════════════════════════════════════════ */
+function gArt_type1(W,H,bg,fg,ac){
+  return `<rect width="${W}" height="${H}" fill="${bg}"/>
+  <text x="${W*.5}" y="${H*.72}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${Math.min(W,H)*.55}" font-weight="700" opacity=".055">Ff</text>
+  <text x="${W*.5}" y="${H*.53}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.11}" font-weight="700" letter-spacing="2">Type Study</text>
+  <text x="${W*.5}" y="${H*.67}" text-anchor="middle" fill="${ac}" font-family="monospace" font-size="${W*.065}" letter-spacing="5" opacity=".5">No. I</text>
+  <line x1="${W*.15}" y1="${H*.75}" x2="${W*.85}" y2="${H*.75}" stroke="${ac}" stroke-width=".55" opacity=".22"/>`;
+}
+function gArt_grid(W,H,bg,fg,ac){
+  const cw=W/10,ch=H/Math.round(H/cw);
+  const cells=Array.from({length:10},(_,col)=>Array.from({length:Math.round(H/cw)},(_,row)=>`<rect x="${col*cw+.5}" y="${row*ch+.5}" width="${cw-1}" height="${ch-1}" fill="${fg}" opacity="${R(.02,.1)}"/>`).join('')).join('');
+  return `<rect width="${W}" height="${H}" fill="${bg}"/>${cells}
+  <rect x="${W*.1}" y="${H*.1}" width="${W*.8}" height="${H*.8}" fill="none" stroke="${ac}" stroke-width=".5" opacity=".2"/>
+  <text x="${W*.5}" y="${H*.54}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.1}" font-weight="700" font-style="italic" opacity=".65">Fragment</text>`;
+}
+function gArt_diag(W,H,bg,fg,ac){
+  const id=uid();
+  return `<defs><linearGradient id="dg${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${fg}" stop-opacity=".16"/><stop offset="100%" stop-color="${ac}" stop-opacity=".06"/></linearGradient></defs>
+  <rect width="${W}" height="${H}" fill="${bg}"/><rect width="${W}" height="${H}" fill="url(#dg${id})"/>
+  <polygon points="0,0 ${W*.62},0 0,${H*.62}" fill="${fg}" opacity=".055"/>
+  <polygon points="${W},${H} ${W*.38},${H} ${W},${H*.38}" fill="${ac}" opacity=".055"/>
+  <line x1="0" y1="0" x2="${W}" y2="${H}" stroke="${ac}" stroke-width=".65" opacity=".18"/>
+  <line x1="${W}" y1="0" x2="0" y2="${H}" stroke="${fg}" stroke-width=".38" opacity=".08"/>
+  <text x="${W*.5}" y="${H*.52+4}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.11}" font-weight="700" font-style="italic">Diagonal</text>`;
+}
+function gArt_wave(W,H,bg,fg,ac){
+  const waves=Array.from({length:12},(_,i)=>{const y=H*(.18+i*.058);const pts=Array.from({length:24},(_,j)=>{const x=j*(W/23);const wy=y+Math.sin(j*.65+i*.55)*H*.022;return `${j===0?'M':'L'}${x},${wy}`;}).join(' ');return `<path d="${pts}" fill="none" stroke="${i%2===0?ac:fg}" stroke-width="${.38+i*.025}" opacity="${.06+i*.007}"/>`;}).join('');
+  return `<rect width="${W}" height="${H}" fill="${bg}"/>${waves}
+  <text x="${W*.5}" y="${H*.84}" text-anchor="middle" fill="${fg}" font-family="'DM Mono',monospace" font-size="${W*.068}" letter-spacing="3" opacity=".5">WAVE</text>
+  <text x="${W*.5}" y="${H*.93}" text-anchor="middle" fill="${ac}" font-family="monospace" font-size="${W*.052}" letter-spacing="2" opacity=".32">PATTERN</text>`;
+}
+function gArt_type2(W,H,bg,fg,ac){
+  const lines=Array.from({length:20},(_,i)=>`<line x1="0" y1="${i*(H/19)}" x2="${W}" y2="${i*(H/19)}" stroke="${fg}" stroke-width=".2" opacity=".045"/>`).join('');
+  return `<rect width="${W}" height="${H}" fill="${bg}"/>${lines}
+  <text x="${W*.5}" y="${H*.3}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.32}" font-weight="700" opacity=".06">F</text>
+  <text x="${W*.5}" y="${H*.52}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.095}" font-weight="700" letter-spacing="1">Type</text>
+  <text x="${W*.5}" y="${H*.635}" text-anchor="middle" fill="${ac}" font-family="'Playfair Display',serif" font-size="${W*.095}" font-weight="700" font-style="italic">Study II</text>
+  <line x1="${W*.2}" y1="${H*.69}" x2="${W*.8}" y2="${H*.69}" stroke="${ac}" stroke-width=".5" opacity=".22"/>
+  <text x="${W*.5}" y="${H*.93}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.045}" letter-spacing="3" opacity=".18">2024</text>`;
+}
+function gArt_gridS(W,H,bg,fg,ac){
+  const id=uid();
+  const cw=W/12;
+  const rowsN=Math.round(H/cw);
+  const grid=Array.from({length:12},(_,c)=>Array.from({length:rowsN},(_,r)=>`<rect x="${c*cw+.4}" y="${r*cw+.4}" width="${cw-.8}" height="${cw-.8}" fill="none" stroke="${fg}" stroke-width=".28" opacity=".07"/>`).join('')).join('');
+  return `<defs><radialGradient id="gs${id}" cx="50%" cy="50%" r="58%"><stop offset="0%" stop-color="${ac}" stop-opacity=".14"/><stop offset="100%" stop-color="${bg}" stop-opacity="0"/></radialGradient></defs>
+  <rect width="${W}" height="${H}" fill="${bg}"/><rect width="${W}" height="${H}" fill="url(#gs${id})"/>${grid}
+  <text x="${W*.5}" y="${H*.51}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.1}" font-weight="700" font-style="italic" opacity=".65">Grid</text>
+  <text x="${W*.5}" y="${H*.63}" text-anchor="middle" fill="${ac}" font-family="monospace" font-size="${W*.062}" letter-spacing="4" opacity=".45">STUDY</text>`;
+}
+function gArt_tonal(W,H,bg,fg,ac){
+  const id=uid();
+  return `<defs><radialGradient id="tn${id}" cx="58%" cy="42%" r="55%"><stop offset="0%" stop-color="${ac}" stop-opacity=".18"/><stop offset="100%" stop-color="${bg}" stop-opacity="0"/></radialGradient></defs>
+  <rect width="${W}" height="${H}" fill="${bg}"/><rect width="${W}" height="${H}" fill="url(#tn${id})"/>
+  <rect x="${W*.1}" y="${H*.1}" width="${W*.8}" height="${H*.8}" fill="${fg}" opacity=".038"/>
+  <rect x="${W*.2}" y="${H*.2}" width="${W*.6}" height="${H*.6}" fill="${fg}" opacity=".038"/>
+  <rect x="${W*.3}" y="${H*.3}" width="${W*.4}" height="${H*.4}" fill="${ac}" opacity=".055"/>
+  <rect x="${W*.38}" y="${H*.38}" width="${W*.24}" height="${H*.24}" fill="${ac}" opacity=".07"/>
+  <text x="${W*.5}" y="${H*.53}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.1}" font-weight="700" opacity=".58">Tonal</text>
+  <text x="${W*.5}" y="${H*.65}" text-anchor="middle" fill="${ac}" font-family="monospace" font-size="${W*.062}" letter-spacing="4" opacity=".38">SHIFT</text>`;
+}
+
+/* ════════════════════════════════════════════════
+   ZINE PAGE ART  (cream paper interior)
+════════════════════════════════════════════════ */
+const PAPER='#f2ebe0', INK='#1c1008';
+
+function zineCover(z){
+  const W=265,H=400,ac=z.accent,bg=z.bg,fg=z.fg;
+  const style=z.coverStyle;
+  if(style==='A'){
+    const dots=Array.from({length:28},(_,row)=>Array.from({length:19},(_,col)=>{
+      const op=Math.max(0,(Math.sin(col*.65+row*.42)*.5+.5)*.13);
+      return `<circle cx="${W*.04+col*(W*.92/18)}" cy="${H*.025+row*(H*.95/27)}" r="1.1" fill="${fg}" opacity="${op}"/>`;
+    }).join('')).join('');
+    return `<rect width="${W}" height="${H}" fill="${bg}"/>
+    ${dots}
+    <rect x="${W*.07}" y="0" width="1.4" height="${H}" fill="${ac}" opacity=".32"/>
+    <rect x="${W*.13}" y="${H*.27}" width="${W*.79}" height="${H*.34}" fill="${fg}" opacity=".04"/>
+    <text x="${W*.55}" y="${H*.41}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',Georgia,serif" font-size="${W*.13}" font-weight="700">${z.tl[0]}</text>
+    <text x="${W*.55}" y="${H*.55}" text-anchor="middle" fill="${ac}" font-family="'Playfair Display',Georgia,serif" font-size="${W*.13}" font-weight="700" font-style="italic">${z.tl[1]||''}</text>
+    <line x1="${W*.13}" y1="${H*.61}" x2="${W*.88}" y2="${H*.61}" stroke="${ac}" stroke-width=".75" opacity=".38"/>
+    <text x="${W*.55}" y="${H*.69}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.043}" letter-spacing="4" opacity=".4">${z.sub}</text>
+    <text x="${W*.55}" y="${H*.94}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.033}" letter-spacing="3" opacity=".18">FREDDIE FREELOADER</text>`;
+  }
+  if(style==='B'){
+    const scan=Array.from({length:Math.floor(H/4.5)},(_,i)=>`<line x1="0" y1="${i*4.5}" x2="${W}" y2="${i*4.5}" stroke="${fg}" stroke-width=".2" opacity=".05"/>`).join('');
+    return `<rect width="${W}" height="${H}" fill="${bg}"/>
+    ${scan}
+    <text x="${W*.5}" y="${H*.55}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.72}" font-weight="700" opacity=".055">${z.tl[0][0]}</text>
+    <text x="${W*.5}" y="${H*.45}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.12}" font-weight="700" letter-spacing="1">${z.tl[0]}</text>
+    <text x="${W*.5}" y="${H*.58}" text-anchor="middle" fill="${ac}" font-family="'Playfair Display',serif" font-size="${W*.12}" font-weight="700" font-style="italic">${z.tl[1]||''}</text>
+    <rect x="${W*.11}" y="${H*.65}" width="${W*.78}" height=".75" fill="${ac}" opacity=".38"/>
+    <text x="${W*.5}" y="${H*.73}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.04}" letter-spacing="5" opacity=".38">${z.sub}</text>
+    <text x="${W*.5}" y="${H*.94}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.033}" letter-spacing="3" opacity=".17">FREDDIE FREELOADER</text>`;
+  }
+  // C
+  const id=uid();
+  const rings=Array.from({length:5},(_,i)=>`<circle cx="${W*.5}" cy="${H*.38}" r="${W*(.07+i*.1)}" fill="none" stroke="${ac}" stroke-width=".5" opacity="${.16-i*.024}"/>`).join('');
+  return `<defs><radialGradient id="cv${id}" cx="50%" cy="42%" r="56%"><stop offset="0%" stop-color="${ac}" stop-opacity=".2"/><stop offset="100%" stop-color="${bg}" stop-opacity="0"/></radialGradient></defs>
+  <rect width="${W}" height="${H}" fill="${bg}"/><rect width="${W}" height="${H}" fill="url(#cv${id})"/>
+  ${rings}
+  <circle cx="${W*.5}" cy="${H*.38}" r="${W*.03}" fill="${ac}" opacity=".28"/>
+  <text x="${W*.5}" y="${H*.65}" text-anchor="middle" fill="${fg}" font-family="'Playfair Display',serif" font-size="${W*.115}" font-weight="700">${z.tl[0]}</text>
+  ${z.tl[1]?`<text x="${W*.5}" y="${H*.77}" text-anchor="middle" fill="${ac}" font-family="'Playfair Display',serif" font-size="${W*.1}" font-weight="700" font-style="italic">${z.tl[1]}</text>`:''}
+  <text x="${W*.5}" y="${H*.87}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.038}" letter-spacing="4" opacity=".38">${z.sub}</text>
+  <text x="${W*.5}" y="${H*.94}" text-anchor="middle" fill="${fg}" font-family="monospace" font-size="${W*.033}" letter-spacing="3" opacity=".17">FREDDIE FREELOADER</text>`;
+}
+
+function zinePage(z, pi){
+  const W=265,H=400;
+  const pg=z.pages[pi];
+  if(!pg) return zineBlank();
+  if(pg.type==='cover') return zineCover(z);
+
+  const ac=z.accent;
+  const hdr=`<line x1="${W*.07}" y1="${W*.07}" x2="${W*.93}" y2="${W*.07}" stroke="${INK}" stroke-width=".35" opacity=".14"/>
+  <text x="${W*.07}" y="${W*.062}" fill="${INK}" font-family="'DM Mono',monospace" font-size="${W*.036}" letter-spacing="2" opacity=".25">${z.title.toUpperCase()}</text>
+  <text x="${W*.93}" y="${W*.062}" text-anchor="end" fill="${INK}" font-family="'DM Mono',monospace" font-size="${W*.036}" opacity=".25">${pi}</text>`;
+  const ftr=`<line x1="${W*.07}" y1="${H*.93}" x2="${W*.93}" y2="${H*.93}" stroke="${INK}" stroke-width=".28" opacity=".1"/>`;
+
+  if(pg.type==='text') return `<rect width="${W}" height="${H}" fill="${PAPER}"/>
+    ${hdr}
+    <text x="${W*.07}" y="${H*.21}" fill="${ac}" font-family="'DM Mono',monospace" font-size="${W*.038}" letter-spacing="3" opacity=".65">${pg.ch||''}</text>
+    <line x1="${W*.07}" y1="${H*.24}" x2="${W*.38}" y2="${H*.24}" stroke="${ac}" stroke-width=".65" opacity=".38"/>
+    ${(pg.lines||[]).map((l,i)=>`<text x="${W*.07}" y="${H*(.29+i*.068)}" fill="${INK}" font-family="'EB Garamond',Georgia,serif" font-size="${W*.055}" opacity=".82">${l}</text>`).join('')}
+    ${ftr}`;
+
+  if(pg.type==='image'){
+    const id=uid();
+    const imgH=H*.53;
+    const imgY=H*.14;
+    const imgX=W*.07;const imgW=W*.86;
+    const plate=pg.img==='circles'?
+      Array.from({length:4},(_,i)=>`<circle cx="${imgX+imgW/2}" cy="${imgY+imgH/2}" r="${Math.min(imgW,imgH)*(.1+i*.15)}" fill="none" stroke="${ac}" stroke-width=".7" opacity="${.22-i*.045}"/>`).join('')+`<circle cx="${imgX+imgW/2}" cy="${imgY+imgH/2}" r="${Math.min(imgW,imgH)*.04}" fill="${ac}" opacity=".28"/>`:
+    pg.img==='lines'?
+      Array.from({length:18},(_,i)=>`<line x1="${imgX}" y1="${imgY+i*(imgH/17)}" x2="${imgX+imgW}" y2="${imgY+i*(imgH/17)}" stroke="${INK}" stroke-width="${.28+Math.sin(i*.5)*.18}" opacity="${.04+Math.sin(i*.4)*.025}"/>`).join('')+`<text x="${imgX+imgW/2}" y="${imgY+imgH/2+5}" text-anchor="middle" fill="${INK}" font-family="'Playfair Display',serif" font-size="${W*.065}" font-style="italic" opacity=".2">${pg.cap}</text>`:
+      `<polygon points="${imgX+imgW/2},${imgY+imgH*.04} ${imgX+imgW*.92},${imgY+imgH*.92} ${imgX+imgW*.08},${imgY+imgH*.92}" fill="none" stroke="${ac}" stroke-width=".6" opacity=".16"/>
+      <polygon points="${imgX+imgW/2},${imgY+imgH*.1} ${imgX+imgW*.88},${imgY+imgH*.88} ${imgX+imgW*.12},${imgY+imgH*.88}" fill="none" stroke="${INK}" stroke-width=".38" opacity=".1"/>`;
+    return `<rect width="${W}" height="${H}" fill="${PAPER}"/>
+    ${hdr}
+    <defs><radialGradient id="ip${id}" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="${ac}" stop-opacity=".18"/><stop offset="100%" stop-color="#e8e0d0" stop-opacity="0"/></radialGradient></defs>
+    <rect x="${imgX}" y="${imgY}" width="${imgW}" height="${imgH}" fill="#e8e0d0" stroke="${INK}" stroke-width=".45" opacity=".7"/>
+    <rect x="${imgX}" y="${imgY}" width="${imgW}" height="${imgH}" fill="url(#ip${id})"/>
+    ${plate}
+    <text x="${imgX+imgW/2}" y="${imgY+imgH+H*.065}" text-anchor="middle" fill="${INK}" font-family="'EB Garamond',Georgia,serif" font-size="${W*.05}" font-style="italic" opacity=".48">${pg.cap}</text>
+    ${ftr}`;
+  }
+
+  if(pg.type==='spread') return `<rect width="${W}" height="${H}" fill="${PAPER}"/>
+    <rect x="0" y="${H*.13}" width="${W}" height="${H*.74}" fill="${ac}" opacity=".07"/>
+    <line x1="0" y1="${H*.13}" x2="${W}" y2="${H*.13}" stroke="${ac}" stroke-width=".7" opacity=".22"/>
+    <line x1="0" y1="${H*.87}" x2="${W}" y2="${H*.87}" stroke="${ac}" stroke-width=".7" opacity=".22"/>
+    <text x="${W*.5}" y="${H*.46}" text-anchor="middle" fill="${INK}" font-family="'Playfair Display',serif" font-size="${W*.1}" font-weight="700" letter-spacing="1">${pg.a}</text>
+    <text x="${W*.5}" y="${H*.58}" text-anchor="middle" fill="${INK}" font-family="'Playfair Display',serif" font-size="${W*.1}" font-weight="700" font-style="italic" opacity=".5">${pg.b}</text>
+    <line x1="${W*.28}" y1="${H*.65}" x2="${W*.72}" y2="${H*.65}" stroke="${ac}" stroke-width=".55" opacity=".32"/>
+    <text x="${W*.5}" y="${H*.94}" text-anchor="middle" fill="${INK}" font-family="'DM Mono',monospace" font-size="${W*.036}" letter-spacing="3" opacity=".22">${pi}</text>`;
+
+  if(pg.type==='colophon') return `<rect width="${W}" height="${H}" fill="${PAPER}"/>
+    <text x="${W*.5}" y="${H*.34}" text-anchor="middle" fill="${ac}" font-family="serif" font-size="${W*.09}" opacity=".28">✦</text>
+    <text x="${W*.5}" y="${H*.49}" text-anchor="middle" fill="${INK}" font-family="'Playfair Display',serif" font-size="${W*.065}" font-style="italic" opacity=".5">${z.title}</text>
+    <line x1="${W*.3}" y1="${H*.55}" x2="${W*.7}" y2="${H*.55}" stroke="${ac}" stroke-width=".48" opacity=".28"/>
+    <text x="${W*.5}" y="${H*.63}" text-anchor="middle" fill="${INK}" font-family="'DM Mono',monospace" font-size="${W*.036}" letter-spacing="2" opacity=".38">Freddie Freeloader</text>
+    <text x="${W*.5}" y="${H*.7}" text-anchor="middle" fill="${INK}" font-family="'DM Mono',monospace" font-size="${W*.034}" letter-spacing="2" opacity=".28">${z.sub} · ${z.year}</text>
+    <text x="${W*.5}" y="${H*.94}" text-anchor="middle" fill="${INK}" font-family="'DM Mono',monospace" font-size="${W*.032}" letter-spacing="2" opacity=".18">All rights reserved.</text>`;
+
+  return zineBlank();
+}
+function zineBlank(){return `<rect width="265" height="400" fill="#f2ebe0"/><text x="132.5" y="390" text-anchor="middle" fill="#1c1008" font-family="'DM Mono',monospace" font-size="9" letter-spacing="2" opacity=".13">FREDDIE FREELOADER</text>`;}
+
+/* ════════════════════════════════════════════════
+   DATA
+════════════════════════════════════════════════ */
+const POSTERS=[
+  {title:"Night Architecture",sub:"2023",bg:"#0b0808",fg:"#e8ddd0",ac:"#c8a96e",artFn:pArt_city},
+  {title:"Frequency Map",sub:"2024",bg:"#070810",fg:"#d4e4f4",ac:"#7ecac8",artFn:pArt_freq},
+  {title:"The Ceremony",sub:"2023",bg:"#09060f",fg:"#e2dcf2",ac:"#a07ec8",artFn:pArt_ceremony},
+  {title:"Slow Dissolve",sub:"2024",bg:"#060910",fg:"#dce4f0",ac:"#7ecac8",artFn:pArt_dissolve},
+  {title:"Open Ground",sub:"2023",bg:"#060a06",fg:"#d6ecd6",ac:"#78c870",artFn:pArt_ground},
+  {title:"Interior Signal",sub:"2024",bg:"#0b0808",fg:"#e8ddd0",ac:"#c8b070",artFn:pArt_signal},
+];
+const GRAPHICS=[
+  {title:"Type Study I",  year:"2024",bg:"#0b0808",fg:"#e8ddd0",ac:"#c8a96e",ar:"3/2",W:300,H:200,artFn:gArt_type1},
+  {title:"Grid Fragment", year:"2024",bg:"#070810",fg:"#d4e4f4",ac:"#7ecac8",ar:"2/3",W:200,H:300,artFn:gArt_grid},
+  {title:"Diagonal Study",year:"2023",bg:"#09060f",fg:"#e2dcf2",ac:"#a07ec8",ar:"1/1",W:260,H:260,artFn:gArt_diag},
+  {title:"Wave Pattern",  year:"2023",bg:"#0b0808",fg:"#e8ddd0",ac:"#c8a96e",ar:"16/9",W:320,H:180,artFn:gArt_wave},
+  {title:"Type Study II", year:"2024",bg:"#060a06",fg:"#d6ecd6",ac:"#78c870",ar:"2/3",W:200,H:300,artFn:gArt_type2},
+  {title:"Grid Study",    year:"2024",bg:"#070810",fg:"#d4e4f4",ac:"#7ecac8",ar:"3/2",W:300,H:200,artFn:gArt_gridS},
+  {title:"Tonal Shift",   year:"2024",bg:"#0b0808",fg:"#e8ddd0",ac:"#c8b870",ar:"1/1",W:260,H:260,artFn:gArt_tonal},
+];
+const ZINES=[
+  {title:"Midnight Frequencies",tl:["Midnight","Frequencies"],sub:"Issue 001 · 2023",year:"2023",
+   bg:"#0b0808",fg:"#e8ddd0",accent:"#c8a96e",coverStyle:"A",
+   pages:[
+    {type:'cover'},{type:'text',ch:"Preface",lines:["The city hums at frequencies","no radio can tune.","A static of lives pressing","against each other —","warm, anonymous, electric.","","This is the first issue.","Consider it a transmission.","","Tune in carefully."]},
+    {type:'image',cap:"transmission · third floor",img:'circles'},{type:'text',ch:"Late Inventory",lines:["One jacket, dark.","Three notebooks, two unfinished.","A record that skips on the bridge.","Coffee rings on every surface.","","Windows that collect the light","and hold it past midnight.","","These are my instruments."]},
+    {type:'spread',a:"we broadcast",b:"into silence"},{type:'text',ch:"Signal",lines:["If you are reading this,","the signal reached you.","","That alone is remarkable —","that out of all the noise,","something small and honest","found its way to your hands.","","Thank you for receiving."]},
+    {type:'colophon'},
+  ]},
+  {title:"Salt & Slow Time",tl:["Salt &","Slow Time"],sub:"A Field Zine · 2023",year:"2023",
+   bg:"#06090e",fg:"#dde8f4",accent:"#7ecac8",coverStyle:"B",
+   pages:[
+    {type:'cover'},{type:'text',ch:"On Flatness",lines:["The horizon is a promise","held at arm's length.","Nothing decorates it.","Nothing needs to.","","Go to a flat place.","Sit down.","Watch how the light","does the heavy work.","","Stay until dusk."]},
+    {type:'image',cap:"salt flat · 4pm · no wind",img:'lines'},{type:'spread',a:"the earth",b:"remembers water"},
+    {type:'text',ch:"Residue",lines:["What salt leaves behind:","a whiteness,","a mineral proof","that something moved here,","was generous,","then left.","","We are all residue","of something larger."]},
+    {type:'text',ch:"Exit Notes",lines:["Drive back at dusk.","","The flat ground will not","follow you home —","but something of it,","the sense of smallness,","the pleasure of it,","will stay."]},
+    {type:'colophon'},
+  ]},
+  {title:"Rooms",tl:["Rooms"],sub:"Interior Studies · 2024",year:"2024",
+   bg:"#08060e",fg:"#ece8f4",accent:"#a07ec8",coverStyle:"C",
+   pages:[
+    {type:'cover'},{type:'text',ch:"The Hallway",lines:["Every room is preceded","by a corridor of intention.","","You decide, briefly,","before the door opens","who you will be inside.","","Hallways are the truest spaces.","Nobody performs in hallways."]},
+    {type:'image',cap:"bedroom · 3am · lamp only",img:'triangles'},{type:'text',ch:"Window Inventory",lines:["What the window faces:","a courtyard, or a wall,","or another window","where someone else","is also watching","the middle distance.","","We keep each other company","without knowing it."]},
+    {type:'spread',a:"the room holds",b:"the shape of you"},
+    {type:'text',ch:"Closing",lines:["A room is a body of air","you've breathed long enough","to call it yours.","","Pack slowly.","","The light will look different","in the next one.","But the light will be there."]},
+    {type:'colophon'},
+  ]},
+];
+
+/* ════════════════════════════════════════════════
+   BUILD GRIDS
+════════════════════════════════════════════════ */
+// POSTERS
+const postGrid=document.getElementById('postGrid');
+document.getElementById('postCount').textContent=`${POSTERS.length} posters`;
+POSTERS.forEach((p,i)=>{
+  const W=200,H=300,inner=p.artFn(W,H,p.bg,p.fg,p.ac);
+  const card=document.createElement('div');card.className='vcard poster-card';
+  card.innerHTML=`<div class="card-art">${wrap(inner,W,H)}</div>
+  <div class="card-veil">
+    <div class="veil-title">${p.title}</div><div class="veil-sub">${p.sub}</div>
+    <div class="veil-acts"><button class="vbtn dl" onclick="dlSvg(wrap(POSTERS[${i}].artFn(600,900,POSTERS[${i}].bg,POSTERS[${i}].fg,POSTERS[${i}].ac),600,900),'FF-poster-${p.title.replace(/\s+/g,'-').toLowerCase()}');event.stopPropagation()">↓ Download</button></div>
+  </div>
+  <div class="card-foot"><div><div class="cf-title">${p.title}</div><div class="cf-year">${p.sub}</div></div>
+  <button class="cf-dl" onclick="dlSvg(wrap(POSTERS[${i}].artFn(600,900,POSTERS[${i}].bg,POSTERS[${i}].fg,POSTERS[${i}].ac),600,900),'FF-poster-${p.title.replace(/\s+/g,'-').toLowerCase()}');event.stopPropagation()">↓</button></div>`;
+  postGrid.appendChild(card);
+});
+
+// GRAPHICS
+const gfxGrid=document.getElementById('gfxGrid');
+document.getElementById('gfxCount').textContent=`${GRAPHICS.length} pieces`;
+GRAPHICS.forEach((g,i)=>{
+  const inner=g.artFn(g.W,g.H,g.bg,g.fg,g.ac);
+  const [aw,ah]=g.ar.split('/').map(Number);
+  const rowSpan=Math.ceil((155/aw*ah+12)/8);
+  const card=document.createElement('div');card.className='vcard';
+  card.style.cssText=`aspect-ratio:${g.ar};grid-row-end:span ${rowSpan}`;
+  card.innerHTML=`<div class="card-art">${wrap(inner,g.W,g.H)}</div>
+  <div class="card-veil">
+    <div class="veil-title">${g.title}</div><div class="veil-sub">${g.year}</div>
+    <div class="veil-acts"><button class="vbtn dl" onclick="dlSvg(wrap(GRAPHICS[${i}].artFn(GRAPHICS[${i}].W*3,GRAPHICS[${i}].H*3,GRAPHICS[${i}].bg,GRAPHICS[${i}].fg,GRAPHICS[${i}].ac),GRAPHICS[${i}].W*3,GRAPHICS[${i}].H*3),'FF-gfx-${g.title.replace(/\s+/g,'-').toLowerCase()}');event.stopPropagation()">↓ Download</button></div>
+  </div>
+  <div class="card-foot"><div><div class="cf-title">${g.title}</div><div class="cf-year">${g.year}</div></div>
+  <button class="cf-dl" onclick="dlSvg(wrap(GRAPHICS[${i}].artFn(GRAPHICS[${i}].W*3,GRAPHICS[${i}].H*3,GRAPHICS[${i}].bg,GRAPHICS[${i}].fg,GRAPHICS[${i}].ac),GRAPHICS[${i}].W*3,GRAPHICS[${i}].H*3),'FF-gfx-${g.title.replace(/\s+/g,'-').toLowerCase()}');event.stopPropagation()">↓</button></div>`;
+  gfxGrid.appendChild(card);
+});
+
+// ZINES
+const zineGrid=document.getElementById('zineGrid');
+document.getElementById('zineCount').textContent=`${ZINES.length} zines`;
+ZINES.forEach((z,i)=>{
+  const coverInner=zineCover(z);
+  const card=document.createElement('div');card.className='vcard zine-card';
+  card.innerHTML=`<div class="card-art">${wrap(coverInner,265,400)}</div>
+  <div class="card-veil">
+    <div class="veil-title">${z.title}</div><div class="veil-sub">${z.sub}</div>
+    <div class="veil-acts">
+      <button class="vbtn open" onclick="openBook(${i});event.stopPropagation()">Open Zine</button>
+      <button class="vbtn dl" onclick="dlZineIdx(${i});event.stopPropagation()">↓</button>
+    </div>
+  </div>
+  <div class="card-foot"><div><div class="cf-title">${z.title}</div><div class="cf-year">${z.year}</div></div>
+  <button class="cf-dl" onclick="dlZineIdx(${i});event.stopPropagation()">↓</button></div>`;
+  card.addEventListener('click',()=>openBook(i));
+  zineGrid.appendChild(card);
+});
+
+/* ════════════════════════════════════════════════
+   BOOK ENGINE
+════════════════════════════════════════════════ */
+let AZ=null,SP=0;
+
+function openBook(i){
+  AZ=ZINES[i];SP=0;
+  renderBook();
+  document.getElementById('bookOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeBook(){
+  document.getElementById('bookOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  setTimeout(()=>{document.getElementById('bookContainer').classList.remove('spread');SP=0;},450);
+}
+
+function renderBook(){
+  const bc=document.getElementById('bookContainer');
+  const sL=document.getElementById('svgL'),sR=document.getElementById('svgR');
+  const ind=document.getElementById('bInd');
+  const prev=document.getElementById('btnPrev'),next=document.getElementById('btnNext');
+  const total=Math.ceil((AZ.pages.length-1)/2);
+
+  if(SP===0){
+    bc.classList.remove('spread');
+    sR.innerHTML=zinePage(AZ,0);sL.innerHTML='';
+    ind.innerHTML='<em>Cover</em>';
+    prev.classList.add('gone');next.classList.remove('gone');
+  } else {
+    bc.classList.add('spread');
+    const lp=SP*2-1,rp=SP*2;
+    sL.innerHTML=lp<AZ.pages.length?zinePage(AZ,lp):zineBlank();
+    sR.innerHTML=rp<AZ.pages.length?zinePage(AZ,rp):zineBlank();
+    ind.innerHTML=`<em>${SP}</em> / ${total}`;
+    prev.classList.remove('gone');
+    next.classList.toggle('gone',SP>=total);
+  }
+}
+
+function turnPage(dir){
+  if(!AZ)return;
+  const total=Math.ceil((AZ.pages.length-1)/2);
+  const ns=SP+dir;
+  if(ns<0||ns>total)return;
+  const sL=document.getElementById('svgL'),sR=document.getElementById('svgR');
+  sR.style.transition='opacity .18s ease';sL.style.transition='opacity .18s ease';
+  sR.style.opacity='0';sL.style.opacity='0';
+  setTimeout(()=>{
+    SP=ns;renderBook();
+    requestAnimationFrame(()=>{
+      sR.style.opacity='1';sL.style.opacity='1';
+      setTimeout(()=>{sR.style.transition='';sL.style.transition='';},200);
+    });
+  },190);
+}
+
+function dlActiveZine(){if(AZ)dlZineIdx(ZINES.indexOf(AZ));}
+function dlZineIdx(i){
+  const z=ZINES[i];
+  const cols=2,pw=265,ph=400,gap=8,m=14;
+  const rows=Math.ceil(z.pages.length/2);
+  const W=cols*pw+gap+m*2,H=rows*ph+gap*(rows-1)+m*2;
+  const pgs=z.pages.map((_,pi)=>{const col=pi%2,row=Math.floor(pi/2);return `<g transform="translate(${m+col*(pw+gap)},${m+row*(ph+gap)})">${zinePage(z,pi)}</g>`;}).join('');
+  dlSvg(`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#18100e"/>${pgs}</svg>`,`FF-zine-${z.title.replace(/\s+/g,'-').toLowerCase()}`);
+}
+
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('bookOverlay').classList.contains('open'))return;
+  if(e.key==='ArrowRight')turnPage(1);
+  if(e.key==='ArrowLeft')turnPage(-1);
+  if(e.key==='Escape')closeBook();
+});
+document.getElementById('bookBackdrop').addEventListener('click',closeBook);
+</script>
+</body>
+</html>
