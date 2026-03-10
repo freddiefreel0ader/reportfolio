@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Freddie Freeloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0a0a;
+      --bg2: #160d0d;
+      --accent: #c8a96e;
+      --accent2: #7ecac8;
+      --text: #e8ddd0;
+      --muted: #6b5a52;
+      --border: #2a1e1e;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(14,10,10,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero {
+      padding: 7rem 4rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent2);
+    }
+
+    .hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      line-height: 0.95;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .hero-name em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    /* SECTION TITLES */
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4rem 4rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ALBUMS GRID */
+    .albums-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 2px;
+      padding: 0 4rem 0;
+      animation: fadeUp 0.9s 0.15s ease both;
+    }
+
+    .album-card {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      transition: border-color 0.3s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .album-card:hover { border-color: var(--accent); }
+
+    .album-card:hover .album-overlay { opacity: 1; }
+    .album-card:hover .album-cover-img { transform: scale(1.04); }
+
+    .album-cover-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .album-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+      filter: grayscale(20%);
+    }
+
+    /* Placeholder cover for demo */
+    .album-cover-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1010 0%, #2a1a0a 50%, #0a1520 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.5s ease;
+    }
+
+    .album-cover-placeholder svg {
+      opacity: 0.15;
+      width: 60px;
+    }
+
+    .album-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(200, 169, 110, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .album-overlay-text {
+      font-size: 0.68rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.6rem 1.2rem;
+    }
+
+    .album-info {
+      padding: 1.2rem 1.4rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .album-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    .album-meta {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .album-meta span { color: var(--accent2); }
+
+    /* SINGLES */
+    .singles-list {
+      padding: 0 4rem 6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+
+    .single-row {
+      display: grid;
+      grid-template-columns: 60px 1fr auto auto;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 1.4rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .single-row:hover {
+      border-color: var(--accent);
+      background: #1a1010;
+    }
+
+    .single-num {
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .single-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+    }
+
+    .single-year {
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .single-duration {
+      font-size: 0.65rem;
+      color: var(--accent2);
+      letter-spacing: 0.1em;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Freddie Freeloader</a>
+  <ul class="nav-links">
+    <li><a href="#">Poetry</a></li>
+    <li><a href="#">Visuals</a></li>
+    <li><a href="#">Photography</a></li>
+    <li><a href="#">Contact</a></li>
+    <li><a href="#">About</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <span class="hero-label">Artist Portfolio</span>
+  <h1 class="hero-name">Freddie<br><em>Freeloader</em></h1>
+</div>
+
+<!-- ALBUMS -->
+<div class="section-label">Albums</div>
+<div class="albums-grid">
+
+  <!-- ALBUM CARD — replace src with your actual cover image path -->
+  <a href="album.html" class="album-card">
+    <div class="album-cover-wrap">
+      <!-- If you have a cover image, use: <img class="album-cover-img" src="covers/album1.jpg" alt="Album 1"> -->
+      <!-- Otherwise the placeholder below shows -->
+      <div class="album-cover-placeholder">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="45" stroke="white" stroke-width="2"/>
+          <circle cx="50" cy="50" r="8" fill="white"/>
+          <line x1="50" y1="5" x2="50" y2="95" stroke="white" stroke-width="1"/>
+          <line x1="5" y1="50" x2="95" y2="50" stroke="white" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="album-overlay"><span class="album-overlay-text">View Album</span></div>
+    </div>
+    <div class="album-info">
+      <div class="album-title">Album Title Here</div>
+      <div class="album-meta">
+        <div><span>2024</span></div>
+        <div><span>10 tracks</span></div>
+        <div><span>42:17</span></div>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<!-- SINGLES -->
+<div class="section-label" style="margin-top:3rem;">Singles</div>
+<div class="singles-list">
+
+  <a href="#" class="single-row">
+    <div class="single-num">01</div>
+    <div class="single-title">Single Title One</div>
+    <div class="single-year">2024</div>
+    <div class="single-duration">3:42</div>
+  </a>
+
+  <a href="#" class="single-row">
+    <div class="single-num">02</div>
+    <div class="single-title">Single Title Two</div>
+    <div class="single-year">2023</div>
+    <div class="single-duration">4:10</div>
+  </a>
+
+  <a href="#" class="single-row">
+    <div class="single-num">03</div>
+    <div class="single-title">Single Title Three</div>
+    <div class="single-year">2023</div>
+    <div class="single-duration">2:58</div>
+  </a>
+
+</div>
+
+<footer>
+  <span>© 2024 Freddie Freeloader</span>
+  <span>All rights reserved</span>
+</footer>
+
+</body>
+</html>
