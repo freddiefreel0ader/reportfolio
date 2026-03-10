@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Photography — Freddie Freeloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0a0a;
+      --bg2: #160d0d;
+      --accent: #c8a96e;
+      --accent2: #7ecac8;
+      --text: #e8ddd0;
+      --muted: #6b5a52;
+      --border: #2a1e1e;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(14,10,10,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.1rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--accent); }
+
+    /* ── GALLERY STAGE ── */
+    .gallery-stage {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 81px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Ambient vignette */
+    .gallery-stage::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(14,10,10,0.65) 100%);
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* ── SLIDES ── */
+    .slides-track {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0s;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .slide.leaving {
+      opacity: 0;
+      transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    /* Photo frame — aspect ratio controlled by JS */
+    .photo-frame {
+      position: relative;
+      max-width: 72vw;
+      max-height: 82vh;
+      box-shadow:
+        0 0 0 1px var(--border),
+        0 30px 80px rgba(0,0,0,0.7),
+        0 0 120px rgba(200, 169, 110, 0.04);
+      overflow: hidden;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .slide.active .photo-frame {
+      animation: frameDrift 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes frameDrift {
+      from { transform: scale(1.00) translate(0, 0); }
+      to   { transform: scale(1.03) translate(-6px, -4px); }
+    }
+
+    /* Placeholder artwork — beautiful generated compositions */
+    .photo-placeholder {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Caption */
+    .slide-caption {
+      position: absolute;
+      bottom: -2.8rem;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.6s 0.4s ease, transform 0.6s 0.4s ease;
+    }
+
+    .slide.active .slide-caption {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .caption-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem;
+      font-style: italic;
+      color: var(--text);
+      opacity: 0.7;
+    }
+
+    .caption-meta {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* ── ARROWS ── */
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 1.5rem 1.2rem;
+      opacity: 0.18;
+      transition: opacity 0.3s ease;
+      color: var(--text);
+    }
+
+    .arrow:hover { opacity: 0.7; }
+
+    .arrow-left { left: 1.5rem; }
+    .arrow-right { right: 1.5rem; }
+
+    .arrow svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── ASPECT RATIO SWITCHER ── */
+    .ratio-switcher {
+      position: absolute;
+      bottom: 2.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+
+    .ratio-switcher:hover { opacity: 1; }
+
+    .ratio-btn {
+      background: none;
+      border: 1px solid var(--muted);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.55rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .ratio-btn:hover,
+    .ratio-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── PROGRESS DOTS ── */
+    .progress-dots {
+      position: absolute;
+      bottom: 2rem;
+      right: 4rem;
+      z-index: 10;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--muted);
+      opacity: 0.35;
+      transition: opacity 0.3s, background 0.3s, transform 0.3s;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: var(--accent);
+      opacity: 1;
+      transform: scale(1.4);
+    }
+
+    /* ── SLIDE COUNTER ── */
+    .slide-counter {
+      position: absolute;
+      bottom: 2.1rem;
+      left: 4rem;
+      z-index: 10;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--muted);
+      opacity: 0.5;
+    }
+
+    .slide-counter em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    /* ── TRACK PLAYER (top-right corner) ── */
+    .track-player {
+      position: fixed;
+      top: 6.5rem;
+      right: 2rem;
+      z-index: 200;
+    }
+
+    /* Collapsed state — tiny pill */
+    .player-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(14,10,10,0.7);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      padding: 0.45rem 0.75rem 0.45rem 0.55rem;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .player-pill:hover { border-color: var(--accent); }
+
+    .player-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+
+    .player-pill.playing .player-pill-dot {
+      background: var(--accent);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    .player-pill-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      transition: color 0.3s;
+    }
+
+    .player-pill:hover .player-pill-label,
+    .player-pill.playing .player-pill-label { color: var(--accent); }
+
+    /* Expanded player panel */
+    .player-panel {
+      position: absolute;
+      top: calc(100% + 0.6rem);
+      right: 0;
+      width: 230px;
+      background: rgba(14,10,10,0.95);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      padding: 1.2rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px) scale(0.97);
+      transform-origin: top right;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .player-panel.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .panel-track-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.88rem;
+      font-style: italic;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .panel-track-sub {
+      font-size: 0.56rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Waveform visualizer */
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 28px;
+      margin-bottom: 1rem;
+    }
+
+    .wave-bar {
+      flex: 1;
+      background: var(--border);
+      border-radius: 1px;
+      transition: height 0.1s;
+    }
+
+    .waveform.playing .wave-bar {
+      background: var(--accent);
+      animation: waveAnim var(--dur) ease-in-out infinite alternate;
+    }
+
+    @keyframes waveAnim {
+      from { height: 3px; }
+      to   { height: var(--peak); }
+    }
+
+    .player-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ctrl-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 0.3rem;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+    }
+
+    .ctrl-btn:hover { color: var(--accent); }
+    .ctrl-btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.5; fill: none; }
+    .ctrl-btn.play-pause svg { width: 18px; height: 18px; }
+
+    .volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 56px;
+      height: 2px;
+      background: var(--border);
+      outline: none;
+      border-radius: 1px;
+      cursor: pointer;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    .panel-disclaimer {
+      font-size: 0.52rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      opacity: 0.5;
+      margin-top: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">FФ.</a>
+  <ul class="nav-links">
+    <li><a href="poetry.html">Poetry</a></li>
+    <li><a href="visuals.html">Visuals</a></li>
+    <li><a href="photography.html" class="active">Photography</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<!-- ── TRACK PLAYER ── -->
+<div class="track-player" id="trackPlayer">
+  <div class="player-pill" id="playerPill" onclick="togglePanel()">
+    <span class="player-pill-dot"></span>
+    <span class="player-pill-label">Ambient</span>
+  </div>
+  <div class="player-panel" id="playerPanel">
+    <div class="panel-track-name">Interlude in Amber</div>
+    <div class="panel-track-sub">Unreleased — Freddie Freeloader</div>
+    <div class="waveform" id="waveform">
+      <!-- bars generated by JS -->
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" onclick="skipBack()" title="Restart">
+        <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.78"/></svg>
+      </button>
+      <button class="ctrl-btn play-pause" id="playPauseBtn" onclick="togglePlay()">
+        <svg id="playIcon" viewBox="0 0 24 24" fill="var(--accent)" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+        <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none" stroke="var(--accent)" fill="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+      </button>
+      <input type="range" class="volume-slider" id="volSlider" min="0" max="1" step="0.01" value="0.55" oninput="setVolume(this.value)">
+    </div>
+    <div class="panel-disclaimer">Not part of any album or single release.</div>
+  </div>
+</div>
+
+<!-- ── GALLERY STAGE ── -->
+<div class="gallery-stage" id="galleryStage">
+
+  <button class="arrow arrow-left" id="arrowLeft" aria-label="Previous">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+
+  <div class="slides-track" id="slidesTrack"></div>
+
+  <button class="arrow arrow-right" id="arrowRight" aria-label="Next">
+    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+
+  <div class="slide-counter" id="slideCounter"><em>01</em> / 08</div>
+
+  <div class="ratio-switcher">
+    <button class="ratio-btn active" data-ratio="3/2">3:2</button>
+    <button class="ratio-btn" data-ratio="1/1">1:1</button>
+    <button class="ratio-btn" data-ratio="4/5">4:5</button>
+    <button class="ratio-btn" data-ratio="16/9">16:9</button>
+  </div>
+
+  <div class="progress-dots" id="progressDots"></div>
+</div>
+
+<footer>
+  <span>© 2024 Freddie Freeloader</span>
+  <span>Photography</span>
+</footer>
+
+<script>
+  /* ──────────────────────────────────────────
+     PHOTO DATA — swap SVG placeholders for
+     <img> tags when real photos exist
+  ────────────────────────────────────────── */
+  const photos = [
+    {
+      title: "Late Light, Unnamed Street",
+      meta: "35mm · 2023",
+      palette: ["#1a0e0e","#3d1f0a","#c8a96e"],
+      svgScene: `
+        <rect width="800" height="534" fill="#120c0c"/>
+        <defs>
+          <radialGradient id="g0" cx="70%" cy="60%" r="50%">
+            <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#120c0c" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="blur0"><feGaussianBlur stdDeviation="18"/></filter>
+        </defs>
+        <rect width="800" height="534" fill="url(#g0)"/>
+        <rect x="0" y="420" width="800" height="114" fill="#0a0808" opacity="0.7"/>
+        <!-- window light bars -->
+        <rect x="490" y="80" width="3" height="280" fill="#c8a96e" opacity="0.18"/>
+        <rect x="530" y="60" width="2" height="300" fill="#c8a96e" opacity="0.12"/>
+        <rect x="510" y="100" width="1.5" height="240" fill="#e8ddd0" opacity="0.08"/>
+        <!-- figure silhouette -->
+        <ellipse cx="560" cy="390" rx="18" ry="44" fill="#0a0808"/>
+        <ellipse cx="560" cy="348" rx="11" ry="11" fill="#0a0808"/>
+        <!-- grain overlay -->
+        <rect width="800" height="534" fill="url(#g0)" opacity="0.08"/>
+      `
+    },
+    {
+      title: "Fog Study №3",
+      meta: "120 format · 2022",
+      palette: ["#0e0e14","#1a2030","#7ecac8"],
+      svgScene: `
+        <rect width="800" height="534" fill="#0a0e18"/>
+        <defs>
+          <radialGradient id="g1" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#7ecac8" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#0a0e18" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="f1"><feGaussianBlur stdDeviation="30"/></filter>
+        </defs>
+        <rect width="800" height="534" fill="url(#g1)"/>
+        <!-- horizon layers -->
+        <rect x="0" y="300" width="800" height="4" fill="#7ecac8" opacity="0.06"/>
+        <rect x="0" y="310" width="800" height="2" fill="#7ecac8" opacity="0.04"/>
+        <rect x="0" y="318" width="800" height="1.5" fill="#7ecac8" opacity="0.03"/>
+        <!-- foggy tree shapes -->
+        <ellipse cx="200" cy="290" rx="40" ry="90" fill="#0d1520" opacity="0.6"/>
+        <ellipse cx="600" cy="260" rx="30" ry="110" fill="#0d1520" opacity="0.4"/>
+        <ellipse cx="400" cy="310" rx="60" ry="70" fill="#0d1520" opacity="0.25"/>
+        <!-- moon -->
+        <circle cx="640" cy="130" r="28" fill="#e8ddd0" opacity="0.07"/>
+        <circle cx="640" cy="130" r="18" fill="#e8ddd0" opacity="0.06"/>
+        <circle cx="640" cy="130" r="10" fill="#e8ddd0" opacity="0.08"/>
+      `
+    },
+    {
+      title: "Overexposed Memory",
+      meta: "Digital · 2024",
+      palette: ["#1a0a0e","#3d0a1a","#c8a96e"],
+      svgScene: `
+        <rect width="800" height="534" fill="#160a10"/>
+        <defs>
+          <radialGradient id="g2" cx="30%" cy="70%" r="55%">
+            <stop offset="0%" stop-color="#c8736e" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#160a10" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="g2b" cx="75%" cy="30%" r="40%">
+            <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#160a10" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="800" height="534" fill="url(#g2)"/>
+        <rect width="800" height="534" fill="url(#g2b)"/>
+        <!-- abstract blown window -->
+        <rect x="320" y="120" width="160" height="220" fill="#e8ddd0" opacity="0.03"/>
+        <rect x="330" y="130" width="140" height="200" fill="#e8ddd0" opacity="0.04"/>
+        <!-- vertical burn lines -->
+        <line x1="400" y1="0" x2="400" y2="534" stroke="#e8ddd0" stroke-width="0.5" opacity="0.04"/>
+        <line x1="380" y1="0" x2="380" y2="534" stroke="#c8a96e" stroke-width="0.3" opacity="0.05"/>
+      `
+    },
+    {
+      title: "Salt Flat, Afternoon",
+      meta: "4×5 · 2023",
+      palette: ["#0a0c0e","#101820","#e8ddd0"],
+      svgScene: `
+        <rect width="800" height="534" fill="#0a0c10"/>
+        <defs>
+          <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0a0c18"/>
+            <stop offset="48%" stop-color="#e8ddd0" stop-opacity="0.12"/>
+            <stop offset="49%" stop-color="#e8ddd0" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#050810"/>
+          </linearGradient>
+        </defs>
+        <rect width="800" height="534" fill="url(#g3)"/>
+        <!-- sky-to-flat hard horizon -->
+        <rect x="0" y="255" width="800" height="2" fill="#e8ddd0" opacity="0.14"/>
+        <!-- reflection lines on flat -->
+        <line x1="0" y1="290" x2="800" y2="290" stroke="#e8ddd0" stroke-width="0.4" opacity="0.06"/>
+        <line x1="0" y1="340" x2="800" y2="340" stroke="#e8ddd0" stroke-width="0.3" opacity="0.04"/>
+        <line x1="0" y1="420" x2="800" y2="420" stroke="#e8ddd0" stroke-width="0.3" opacity="0.03"/>
+        <!-- tiny figure at horizon -->
+        <ellipse cx="400" cy="257" rx="2" ry="6" fill="#0a0c10" opacity="0.9"/>
+      `
+    },
+    {
+      title: "Bathwater Light",
+      meta: "35mm · 2022",
+      palette: ["#12100a","#2a2010","#c8a96e"],
+      svgScene: `
+        <rect width="800" height="534" fill="#100e08"/>
+        <defs>
+          <radialGradient id="g4" cx="50%" cy="45%" r="45%">
+            <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#100e08" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="800" height="534" fill="url(#g4)"/>
+        <!-- ripple rings -->
+        <ellipse cx="400" cy="380" rx="280" ry="60" fill="none" stroke="#c8a96e" stroke-width="0.5" opacity="0.1"/>
+        <ellipse cx="400" cy="380" rx="200" ry="42" fill="none" stroke="#c8a96e" stroke-width="0.4" opacity="0.08"/>
+        <ellipse cx="400" cy="380" rx="110" ry="22" fill="none" stroke="#c8a96e" stroke-width="0.4" opacity="0.07"/>
+        <ellipse cx="400" cy="380" rx="50" ry="10" fill="none" stroke="#e8ddd0" stroke-width="0.5" opacity="0.1"/>
+        <!-- overhead lamp glow -->
+        <ellipse cx="400" cy="180" rx="70" ry="35" fill="#c8a96e" opacity="0.08" filter="blur(20px)"/>
+        <circle cx="400" cy="170" r="4" fill="#e8ddd0" opacity="0.25"/>
+      `
+    },
+    {
+      title: "The Corridor, 3AM",
+      meta: "Digital · 2024",
+      palette: ["#060608","#10081a","#7ecac8"],
+      svgScene: `
+        <rect width="800" height="534" fill="#060608"/>
+        <defs>
+          <linearGradient id="g5" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stop-color="#0a0818" stop-opacity="0"/>
+            <stop offset="40%" stop-color="#7ecac8" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#060608" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- corridor walls perspective -->
+        <polygon points="0,0 800,0 600,534 200,534" fill="#0c0a14"/>
+        <polygon points="200,534 600,534 500,267 300,267" fill="#10081c"/>
+        <!-- vanishing light point -->
+        <circle cx="400" cy="267" r="3" fill="#7ecac8" opacity="0.5"/>
+        <circle cx="400" cy="267" r="12" fill="none" stroke="#7ecac8" stroke-width="0.5" opacity="0.15"/>
+        <circle cx="400" cy="267" r="35" fill="none" stroke="#7ecac8" stroke-width="0.3" opacity="0.08"/>
+        <circle cx="400" cy="267" r="80" fill="none" stroke="#7ecac8" stroke-width="0.2" opacity="0.05"/>
+        <rect width="800" height="534" fill="url(#g5)"/>
+        <!-- overhead strip lights -->
+        <rect x="370" y="0" width="60" height="267" fill="#7ecac8" opacity="0.03"/>
+      `
+    },
+    {
+      title: "Smoke and Frequency",
+      meta: "120 format · 2021",
+      palette: ["#0e0a06","#261408","#c8a96e"],
+      svgScene: `
+        <rect width="800" height="534" fill="#0c0a08"/>
+        <defs>
+          <radialGradient id="g6" cx="60%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#0c0a08" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="smokeBlur"><feGaussianBlur stdDeviation="22"/></filter>
+        </defs>
+        <rect width="800" height="534" fill="url(#g6)"/>
+        <!-- smoke wisps -->
+        <ellipse cx="480" cy="200" rx="30" ry="120" fill="#e8ddd0" opacity="0.04" filter="url(#smokeBlur)"/>
+        <ellipse cx="510" cy="160" rx="20" ry="90" fill="#e8ddd0" opacity="0.03" filter="url(#smokeBlur)"/>
+        <ellipse cx="460" cy="240" rx="25" ry="100" fill="#e8ddd0" opacity="0.03" filter="url(#smokeBlur)"/>
+        <!-- mic stand silhouette rough -->
+        <rect x="495" y="280" width="3" height="200" fill="#060504" opacity="0.9"/>
+        <ellipse cx="497" cy="280" rx="14" ry="10" fill="#060504" opacity="0.9"/>
+        <!-- warm back light -->
+        <ellipse cx="500" cy="534" rx="160" ry="60" fill="#c8a96e" opacity="0.06" filter="url(#smokeBlur)"/>
+      `
+    },
+    {
+      title: "An Open Window",
+      meta: "35mm · 2024",
+      palette: ["#080c10","#102030","#7ecac8"],
+      svgScene: `
+        <rect width="800" height="534" fill="#08090e"/>
+        <defs>
+          <linearGradient id="g7" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0a1830"/>
+            <stop offset="100%" stop-color="#050608"/>
+          </linearGradient>
+          <radialGradient id="g7b" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#7ecac8" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#08090e" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="800" height="534" fill="url(#g7)"/>
+        <!-- window frame -->
+        <rect x="240" y="80" width="320" height="380" fill="none" stroke="#e8ddd0" stroke-width="1.5" opacity="0.12"/>
+        <line x1="400" y1="80" x2="400" y2="460" stroke="#e8ddd0" stroke-width="0.8" opacity="0.1"/>
+        <line x1="240" y1="270" x2="560" y2="270" stroke="#e8ddd0" stroke-width="0.8" opacity="0.1"/>
+        <!-- city glow outside -->
+        <rect x="241" y="81" width="318" height="188" fill="url(#g7b)"/>
+        <!-- curtain shadows -->
+        <polygon points="240,80 270,80 250,460 240,460" fill="#0a0a12" opacity="0.7"/>
+        <polygon points="560,80 530,80 550,460 560,460" fill="#0a0a12" opacity="0.7"/>
+      `
+    }
+  ];
+
+  /* ── STATE ── */
+  let current = 0;
+  let currentRatio = "3/2";
+  let isTransitioning = false;
+  const RATIOS = { "3/2": {w:800,h:534}, "1/1":{w:600,h:600}, "4/5":{w:600,h:750}, "16/9":{w:800,h:450} };
+
+  /* ── BUILD SLIDES ── */
+  const track = document.getElementById('slidesTrack');
+  const dotsContainer = document.getElementById('progressDots');
+
+  photos.forEach((p, i) => {
+    // slide
+    const slide = document.createElement('div');
+    slide.className = 'slide' + (i === 0 ? ' active' : '');
+    slide.dataset.index = i;
+
+    const r = RATIOS[currentRatio];
+    slide.innerHTML = `
+      <div class="photo-frame" style="width:min(72vw, ${r.w}px); aspect-ratio:${currentRatio};">
+        <svg class="photo-placeholder" viewBox="0 0 ${r.w} ${r.h}" xmlns="http://www.w3.org/2000/svg"
+             preserveAspectRatio="xMidYMid slice">${p.svgScene}</svg>
+        <div class="album-overlay" style="position:absolute;inset:0;opacity:0;"></div>
+      </div>
+      <div class="slide-caption">
+        <span class="caption-title">${p.title}</span>
+        <span class="caption-meta">${p.meta}</span>
+      </div>
+    `;
+    track.appendChild(slide);
+
+    // dot
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goTo(i);
+    dotsContainer.appendChild(dot);
+  });
+
+  /* ── NAVIGATION ── */
+  function goTo(idx) {
+    if (isTransitioning || idx === current) return;
+    isTransitioning = true;
+
+    const slides = document.querySelectorAll('.slide');
+    const dots   = document.querySelectorAll('.dot');
+
+    slides[current].classList.remove('active');
+    slides[current].classList.add('leaving');
+    dots[current].classList.remove('active');
+
+    current = (idx + photos.length) % photos.length;
+
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+
+    // update counter
+    const counter = document.getElementById('slideCounter');
+    counter.innerHTML = `<em>${String(current+1).padStart(2,'0')}</em> / ${String(photos.length).padStart(2,'0')}`;
+
+    setTimeout(() => {
+      slides.forEach(s => s.classList.remove('leaving'));
+      isTransitioning = false;
+    }, 1100);
+  }
+
+  document.getElementById('arrowLeft').onclick  = () => goTo(current - 1);
+  document.getElementById('arrowRight').onclick = () => goTo(current + 1);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  goTo(current - 1);
+    if (e.key === 'ArrowRight') goTo(current + 1);
+  });
+
+  /* Auto-advance */
+  setInterval(() => { if (!document.hidden) goTo(current + 1); }, 7000);
+
+  /* ── ASPECT RATIO ── */
+  document.querySelectorAll('.ratio-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentRatio = btn.dataset.ratio;
+      const r = RATIOS[currentRatio];
+      document.querySelectorAll('.photo-frame').forEach(f => {
+        f.style.width = `min(72vw, ${r.w}px)`;
+        f.style.aspectRatio = currentRatio;
+      });
+    });
+  });
+
+  /* ── TRACK PLAYER ── */
+  let audioCtx = null;
+  let gainNode = null;
+  let playerPlaying = false;
+  let panelOpen = false;
+  let ambientNodes = [];
+
+  function buildAmbient() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0.55;
+    gainNode.connect(audioCtx.destination);
+
+    // Layer 1 — deep drone (sine)
+    createDrone(60, 0.18, 0);
+    createDrone(90, 0.10, 3.1);
+    // Layer 2 — mid warmth
+    createDrone(180, 0.06, 1.4);
+    createDrone(240, 0.04, 5.7);
+    // Layer 3 — airy shimmer
+    createShimmer(720, 0.025, 2.0);
+    createShimmer(960, 0.018, 4.3);
+    // Layer 4 — noise breath
+    createBreath();
+  }
+
+  function createDrone(freq, amp, phase) {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    g.gain.value = amp;
+
+    // slow LFO on gain
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    lfo.frequency.value = 0.04 + phase * 0.003;
+    lfoGain.gain.value = amp * 0.4;
+    lfo.connect(lfoGain);
+    lfoGain.connect(g.gain);
+    lfo.start();
+
+    osc.connect(g);
+    g.connect(gainNode);
+    osc.start();
+    ambientNodes.push(osc, lfo);
+  }
+
+  function createShimmer(freq, amp, phase) {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    osc.detune.value = Math.random() * 8 - 4;
+    g.gain.value = 0;
+
+    // slow swell
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    lfo.frequency.value = 0.02 + phase * 0.004;
+    lfoGain.gain.value = amp;
+    lfo.connect(lfoGain);
+    lfoGain.connect(g.gain);
+    lfo.start();
+
+    osc.connect(g);
+    g.connect(gainNode);
+    osc.start();
+    ambientNodes.push(osc, lfo);
+  }
+
+  function createBreath() {
+    const bufSize = audioCtx.sampleRate * 4;
+    const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.012;
+
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 400;
+
+    const g = audioCtx.createGain();
+    g.gain.value = 0.35;
+
+    src.connect(filter);
+    filter.connect(g);
+    g.connect(gainNode);
+    src.start();
+    ambientNodes.push(src);
+  }
+
+  function togglePlay() {
+    if (!audioCtx) buildAmbient();
+
+    if (playerPlaying) {
+      gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
+      setTimeout(() => audioCtx.suspend(), 1200);
+      playerPlaying = false;
+    } else {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      gainNode.gain.setTargetAtTime(parseFloat(document.getElementById('volSlider').value), audioCtx.currentTime, 0.8);
+      playerPlaying = true;
+    }
+
+    document.getElementById('playIcon').style.display  = playerPlaying ? 'none'  : 'block';
+    document.getElementById('pauseIcon').style.display = playerPlaying ? 'block' : 'none';
+    document.getElementById('playerPill').classList.toggle('playing', playerPlaying);
+    document.getElementById('waveform').classList.toggle('playing', playerPlaying);
+  }
+
+  function skipBack() {
+    if (audioCtx) {
+      gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
+      setTimeout(() => {
+        ambientNodes.forEach(n => { try { n.stop(); } catch(e){} });
+        ambientNodes = [];
+        audioCtx.close();
+        audioCtx = null;
+        playerPlaying = false;
+        document.getElementById('playIcon').style.display  = 'block';
+        document.getElementById('pauseIcon').style.display = 'none';
+        document.getElementById('playerPill').classList.remove('playing');
+        document.getElementById('waveform').classList.remove('playing');
+      }, 400);
+    }
+  }
+
+  function setVolume(v) {
+    if (gainNode) gainNode.gain.setTargetAtTime(parseFloat(v), audioCtx.currentTime, 0.1);
+  }
+
+  function togglePanel() {
+    panelOpen = !panelOpen;
+    document.getElementById('playerPanel').classList.toggle('open', panelOpen);
+  }
+
+  // Close panel on outside click
+  document.addEventListener('click', e => {
+    const tp = document.getElementById('trackPlayer');
+    if (panelOpen && !tp.contains(e.target)) {
+      panelOpen = false;
+      document.getElementById('playerPanel').classList.remove('open');
+    }
+  });
+
+  // Build waveform bars
+  const wf = document.getElementById('waveform');
+  const peaks = [4,7,14,20,16,10,6,18,24,12,8,22,16,10,5,14,20,18,9,7,12,26,18,11,6,16,22,14,8,5];
+  peaks.forEach((p, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'wave-bar';
+    bar.style.height = '3px';
+    bar.style.setProperty('--peak', p+'px');
+    bar.style.setProperty('--dur', (0.5 + Math.random() * 1.4).toFixed(2)+'s');
+    bar.style.animationDelay = (i * 0.04).toFixed(2)+'s';
+    wf.appendChild(bar);
+  });
+</script>
+</body>
+</html>
