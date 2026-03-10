@@ -553,27 +553,54 @@ const TRACKS = [
     duration: "3:42",
     file: "",
     lyrics: `[Verse 1]
-Add your lyrics here.
-Line by line, just like this.
-Each line on its own row.
+Detain.py: this is a code involving the image recognition of an animal that works properly
 
-[Chorus]
-This is the chorus section.
-It repeats throughout.
-Change this text to your real words.
+import numpy as np
+from PIL import Image
+import tflite_runtime.interpreter as tflite
+import os
 
-[Verse 2]
-Second verse goes here.
-Keep going down the page.
-The scroll wheel will handle the rest.
+# Function to load and preprocess the image
+def load_image(image_path, input_size):
+    if not os.path.exists(image_path):
+        print(f"Error: The file '{image_path}' does not exist.")
+        return None
+    img = Image.open(image_path).convert("RGB").resize(input_size)
+    img_array = np.array(img, dtype=np.float32) / 255.0  # Normalize to [0, 1]
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    return img_array
 
-[Bridge]
-Bridge section.
-Something different here.
+# Load the TFLite model
+model_path = "mobilenet_v1_1.0_224.tflite"  # Replace with your model's path
+interpreter = tflite.Interpreter(model_path=model_path)
+interpreter.allocate_tensors()
 
-[Outro]
-Final lines of the song.
-Fade out.`
+# Get input and output tensor details
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+
+# Ensure input size matches model's input shape (height, width)
+input_shape = tuple(input_details[0]['shape'][1:3])
+
+# Load and preprocess the image
+image_path = "/home/rishab/cat.jpg"  # Replace with your image file path
+input_data = load_image(image_path, input_shape)
+
+if input_data is not None:
+    # Perform inference
+    interpreter.set_tensor(input_details[0]['index'], input_data)
+    interpreter.invoke()
+
+    # Get the output data
+    output_data = interpreter.get_tensor(output_details[0]['index'])
+
+    # Debugging: Print output data and its shape
+    print("Output Data:", output_data)
+    print("Shape of Output Data:", output_data.shape)
+
+    # Get the class with the highest probability
+    predicted_class = np.argmax(output_data[0])
+
   },
   {
     title: "Track Title Two",
