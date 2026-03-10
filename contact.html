@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — Freddie Freeloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0e0a0a;--bg2:#130c0c;
+      --accent:#c8a96e;--accent2:#7ecac8;
+      --text:#e8ddd0;--muted:#6b5a52;--border:#261818;
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.03;pointer-events:none;z-index:9999}
+
+    nav{display:flex;justify-content:space-between;align-items:center;padding:2rem 4rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(14,10,10,.93);backdrop-filter:blur(14px);z-index:200}
+    .nav-logo{font-family:'Playfair Display',serif;font-size:2.1rem;letter-spacing:.12em;color:var(--accent);text-decoration:none}
+    .nav-links{display:flex;gap:2.5rem;list-style:none}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;transition:color .2s}
+    .nav-links a:hover,.nav-links a.active{color:var(--accent)}
+
+    /* PAGE LAYOUT */
+    .page-wrap{min-height:calc(100vh - 81px);display:flex;flex-direction:column;justify-content:center;padding:5rem 4rem 6rem;animation:fadeUp .7s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    .page-label{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--accent2);display:block;margin-bottom:.7rem}
+    .page-title{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,4.5vw,4rem);line-height:.95;font-weight:700;margin-bottom:3.5rem}
+    .page-title em{font-style:italic;color:var(--accent)}
+
+    /* CONTACT TABLE */
+    .contact-table{width:100%;max-width:680px;border-collapse:collapse}
+
+    .contact-row{border-top:1px solid var(--border);transition:border-color .2s}
+    .contact-row:last-child{border-bottom:1px solid var(--border)}
+    .contact-row:hover{border-color:rgba(200,169,110,.25)}
+
+    .contact-row td{padding:1.5rem 0;vertical-align:middle}
+
+    .ct-label{width:180px;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);padding-right:2rem}
+    .ct-value{font-size:.82rem;letter-spacing:.04em;color:var(--text)}
+    .ct-value a{color:var(--text);text-decoration:none;transition:color .2s;position:relative}
+    .ct-value a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:var(--accent);transition:width .25s ease}
+    .ct-value a:hover{color:var(--accent)}
+    .ct-value a:hover::after{width:100%}
+    .ct-action{width:90px;text-align:right}
+    .ct-arrow{font-size:.6rem;letter-spacing:.12em;color:var(--border);transition:color .2s,transform .2s;display:inline-block}
+    .contact-row:hover .ct-arrow{color:var(--accent);transform:translateX(3px)}
+
+    /* DIVIDER */
+    .contact-divider{height:3rem}
+
+    footer{border-top:1px solid var(--border);padding:2rem 4rem;display:flex;justify-content:space-between;font-size:.62rem;letter-spacing:.15em;color:var(--muted)}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">FФ.</a>
+  <ul class="nav-links">
+    <li><a href="poetry.html">Poetry</a></li>
+    <li><a href="visuals.html">Visuals</a></li>
+    <li><a href="photography.html">Photography</a></li>
+    <li><a href="contact.html" class="active">Contact</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<div class="page-wrap">
+  <span class="page-label">Get in Touch</span>
+  <h1 class="page-title">Con<em>tact</em></h1>
+
+  <table class="contact-table">
+
+    <tr class="contact-row">
+      <td class="ct-label">Email</td>
+      <td class="ct-value"><a href="mailto:frederickm@protonmail.com">frederickm@protonmail.com</a></td>
+      <td class="ct-action"><span class="ct-arrow">→</span></td>
+    </tr>
+
+    <tr class="contact-row">
+      <td class="ct-label">Instagram</td>
+      <td class="ct-value"><a href="https://instagram.com/freddie.freeloader" target="_blank" rel="noopener">@freddie.freeloader</a></td>
+      <td class="ct-action"><span class="ct-arrow">→</span></td>
+    </tr>
+
+    <tr class="contact-row">
+      <td class="ct-label">Bandcamp</td>
+      <td class="ct-value"><a href="https://freddiefreeldr.bandcamp.com" target="_blank" rel="noopener">freddiefreeldr.bandcamp.com</a></td>
+      <td class="ct-action"><span class="ct-arrow">→</span></td>
+    </tr>
+
+    <tr class="contact-row">
+      <td class="ct-label">LinkedIn</td>
+      <td class="ct-value"><a href="https://linkedin.com/in/frederickmoore-artist" target="_blank" rel="noopener">Frederick Moore</a></td>
+      <td class="ct-action"><span class="ct-arrow">→</span></td>
+    </tr>
+
+    <tr class="contact-row">
+      <td class="ct-label">Phone</td>
+      <td class="ct-value"><a href="tel:+447911234567">+44 791 123 4567</a></td>
+      <td class="ct-action"><span class="ct-arrow">→</span></td>
+    </tr>
+
+    <tr class="contact-row">
+      <td class="ct-label">Press &amp; Bookings</td>
+      <td class="ct-value"><a href="mailto:press@freddiefreeldr.com">press@freddiefreeldr.com</a></td>
+      <td class="ct-action"><span class="ct-arrow">→</span></td>
+    </tr>
+
+  </table>
+</div>
+
+<footer><span>© 2024 Freddie Freeloader</span><span>Contact</span></footer>
+</body>
+</html>
