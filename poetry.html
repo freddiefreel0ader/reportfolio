@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Poetry — Freddie Freeloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0a0a;
+      --bg2: #160d0d;
+      --accent: #c8a96e;
+      --accent2: #7ecac8;
+      --text: #e8ddd0;
+      --muted: #6b5a52;
+      --border: #2a1e1e;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(14,10,10,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.1rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 5rem 4rem 3rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      line-height: 0.95;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .hero-name em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 3.5rem 4rem 1.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── POETRY GRID ── */
+    .poetry-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 28px;
+      padding: 0 4rem 6rem;
+      animation: fadeUp 0.9s 0.12s ease both;
+    }
+
+    /* ── POEM CARD (portrait) ── */
+    .poem-card {
+      position: relative;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+      /* enforce portrait */
+      aspect-ratio: 2 / 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .poem-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+
+    /* Abstract background for each card */
+    .card-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .card-bg svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Text overlay gradient */
+    .card-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(14,10,10,0.3) 35%,
+        rgba(14,10,10,0.85) 65%,
+        rgba(14,10,10,0.97) 100%
+      );
+    }
+
+    /* Hover reveal: show first lines */
+    .card-preview {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .poem-card:hover .card-preview { opacity: 1; }
+
+    .preview-lines {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.82rem;
+      font-style: italic;
+      color: var(--text);
+      opacity: 0.65;
+      line-height: 1.8;
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+
+    /* Card footer */
+    .card-footer {
+      position: relative;
+      z-index: 2;
+      padding: 1.8rem 1.6rem 1.6rem;
+    }
+
+    .card-number {
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+      margin-bottom: 0.45rem;
+    }
+
+    .card-author {
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent2);
+    }
+
+    .card-read {
+      display: inline-block;
+      margin-top: 0.9rem;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .poem-card:hover .card-read {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* ── SCROLL READER OVERLAY ── */
+    .reader-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: flex;
+      align-items: stretch;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .reader-overlay.open {
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    .reader-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 5, 5, 0.88);
+      backdrop-filter: blur(18px);
+    }
+
+    /* Scroll container */
+    .reader-scroll {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+      padding: 6rem 2rem 8rem;
+      scroll-behavior: smooth;
+
+      /* Custom scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .reader-scroll::-webkit-scrollbar { width: 3px; }
+    .reader-scroll::-webkit-scrollbar-track { background: transparent; }
+    .reader-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* The actual poem column */
+    .reader-column {
+      width: 100%;
+      max-width: 560px;
+      transform: translateY(30px);
+      opacity: 0;
+      transition: transform 0.6s 0.15s cubic-bezier(0.25,0.46,0.45,0.94),
+                  opacity 0.6s 0.15s ease;
+    }
+
+    .reader-overlay.open .reader-column {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .reader-meta {
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .reader-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.08;
+      margin-bottom: 0.4rem;
+    }
+
+    .reader-author {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 3rem;
+    }
+
+    .reader-divider {
+      width: 48px;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.4;
+      margin-bottom: 3rem;
+    }
+
+    /* Poem body */
+    .reader-body {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.2rem;
+      line-height: 2;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+
+    .reader-body p {
+      margin-bottom: 0;
+      white-space: pre-wrap;
+    }
+
+    .reader-body .stanza {
+      margin-bottom: 2.2rem;
+    }
+
+    /* Closing ornament */
+    .reader-end {
+      margin-top: 4rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.4;
+      text-align: center;
+    }
+
+    /* Close button */
+    .reader-close {
+      position: fixed;
+      top: 2rem;
+      right: 2.5rem;
+      z-index: 600;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 0.5rem 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s 0.2s ease, border-color 0.2s, color 0.2s;
+    }
+
+    .reader-overlay.open .reader-close {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .reader-close:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Progress line */
+    .reader-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 1px;
+      background: var(--accent);
+      width: 0%;
+      z-index: 700;
+      transition: width 0.05s linear;
+      opacity: 0;
+    }
+
+    .reader-overlay.open .reader-progress {
+      opacity: 0.6;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">FФ.</a>
+  <ul class="nav-links">
+    <li><a href="poetry.html" class="active">Poetry</a></li>
+    <li><a href="#">Visuals</a></li>
+    <li><a href="photography.html">Photography</a></li>
+    <li><a href="#">Contact</a></li>
+    <li><a href="#">About</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <span class="hero-label">Words &amp; Verse</span>
+  <h1 class="hero-name">Po<em>etry</em></h1>
+</div>
+
+<div class="section-label">Selected Poems</div>
+
+<div class="poetry-grid" id="poetryGrid"></div>
+
+<footer>
+  <span>© 2024 Freddie Freeloader</span>
+  <span>Words</span>
+</footer>
+
+<!-- ── READER OVERLAY ── -->
+<div class="reader-progress" id="readerProgress"></div>
+<div class="reader-overlay" id="readerOverlay">
+  <div class="reader-backdrop" id="readerBackdrop"></div>
+  <button class="reader-close" id="readerClose" onclick="closeReader()">Close ✕</button>
+  <div class="reader-scroll" id="readerScroll">
+    <div class="reader-column" id="readerColumn">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   POEM DATA  — all public domain works
+───────────────────────────────────────── */
+const poems = [
+  {
+    title: "The Tyger",
+    author: "William Blake",
+    year: "1794",
+    preview: "Tyger! Tyger! burning bright\nIn the forests of the night",
+    palette: ["#1a0a00","#3d1500","#c8a96e"],
+    stanzas: [
+      "Tyger! Tyger! burning bright\nIn the forests of the night,\nWhat immortal hand or eye\nCould frame thy fearful symmetry?",
+      "In what distant deeps or skies\nBurnt the fire of thine eyes?\nOn what wings dare he aspire?\nWhat the hand dare seize the fire?",
+      "And what shoulder, & what art,\nCould twist the sinews of thy heart?\nAnd when thy heart began to beat,\nWhat dread hand? & what dread feet?",
+      "What the hammer? what the chain?\nIn what furnace was thy brain?\nWhat the anvil? what dread grasp\nDare its deadly terrors clasp?",
+      "When the stars threw down their spears,\nAnd water'd heaven with their tears,\nDid he smile his work to see?\nDid he who made the Lamb make thee?",
+      "Tyger! Tyger! burning bright\nIn the forests of the night,\nWhat immortal hand or eye\nDare frame thy fearful symmetry?"
+    ]
+  },
+  {
+    title: "Death, Be Not Proud",
+    author: "John Donne",
+    year: "1633",
+    preview: "Death, be not proud, though some\nhave called thee mighty",
+    palette: ["#080c18","#0a1828","#7ecac8"],
+    stanzas: [
+      "Death, be not proud, though some have called thee\nMighty and dreadful, for thou art not so;\nFor those whom thou think'st thou dost overthrow\nDie not, poor Death, nor yet canst thou kill me.",
+      "From rest and sleep, which but thy pictures be,\nMuch pleasure; then from thee much more must flow,\nAnd soonest our best men with thee do go,\nRest of their bones, and soul's delivery.",
+      "Thou art slave to fate, chance, kings, and desperate men,\nAnd dost with poison, war, and sickness dwell,\nAnd poppy or charms can make us sleep as well\nAnd better than thy stroke; why swell'st thou then?",
+      "One short sleep past, we wake eternally\nAnd death shall be no more; Death, thou shalt die."
+    ]
+  },
+  {
+    title: "We Never Know How High",
+    author: "Emily Dickinson",
+    year: "c. 1870",
+    preview: "We never know how high we are\nTill we are called to rise",
+    palette: ["#0e0a14","#1a0a20","#a07ec8"],
+    stanzas: [
+      "We never know how high we are\nTill we are called to rise;\nAnd then, if we are true to plan,\nOur statures touch the skies—",
+      "The Heroism we recite\nWould be a daily thing\nDid not ourselves the Cubits warp\nFor fear to be a King—"
+    ]
+  },
+  {
+    title: "The Weary Blues",
+    author: "Langston Hughes",
+    year: "1926",
+    preview: "Droning a drowsy syncopated tune,\nRocking back and forth",
+    palette: ["#060a10","#0a1020","#4a8ab4"],
+    stanzas: [
+      "Droning a drowsy syncopated tune,\nRocking back and forth to a mellow croon,\n     I heard a Negro play.",
+      "Down on Lenox Avenue the other night\nBy the pale dull pallor of an old gas light\n     He did a lazy sway . . .\n     He did a lazy sway . . .",
+      "To the tune o' those Weary Blues.\nWith his ebony hands on each ivory key\nHe made that poor piano moan with melody.",
+      "O Blues!\nSwaying to and fro on his rickety stool\nHe played that sad raggy tune like a musical fool.",
+      "Sweet Blues!\nComing from a black man's soul.\n     O Blues!",
+      "In a deep song voice with a melancholy tone\nI heard that Negro sing, that old piano moan—\n\"Ain't got nobody in all this world,\nAin't got nobody but ma self.\nI's gwine to quit ma frownin'\nAnd put ma troubles on the shelf.\"",
+      "Thump, thump, thump, went his foot on the floor.\nHe played a few chords then he sang some more—\n\"I got the Weary Blues\nAnd I can't be satisfied.\nGot the Weary Blues\nAnd can't be satisfied—\nI ain't happy no mo'\nAnd I wish that I had died.\"",
+      "And far into the night he crooned that tune.\nThe stars went out and so did the moon.\nThe singer stopped playing and went to bed\nWhile the Weary Blues echoed through his head.\nHe slept like a rock or a man that's dead."
+    ]
+  },
+  {
+    title: "Résumé",
+    author: "Dorothy Parker",
+    year: "1926",
+    preview: "Razors pain you;\nRivers are damp",
+    palette: ["#0e0a0a","#1a0808","#c87e7e"],
+    stanzas: [
+      "Razors pain you;\nRivers are damp;\nAcids stain you;\nAnd drugs cause cramp.",
+      "Guns aren't lawful;\nNooses give;\nGas smells awful;\nYou might as well live."
+    ]
+  },
+  {
+    title: "The Road Not Taken",
+    author: "Robert Frost",
+    year: "1916",
+    preview: "Two roads diverged in a yellow wood,\nAnd sorry I could not travel both",
+    palette: ["#080c08","#0a180a","#7ec87e"],
+    stanzas: [
+      "Two roads diverged in a yellow wood,\nAnd sorry I could not travel both\nAnd be one traveler, long I stood\nAnd looked down one as far as I could\nTo where it bent in the undergrowth;",
+      "Then took the other, as just as fair,\nAnd having perhaps the better claim,\nBecause it was grassy and wanted wear;\nThough as for that the passing there\nHad worn them really about the same,",
+      "And both that morning equally lay\nIn leaves no step had trodden black.\nOh, I kept the first for another day!\nYet knowing how way leads on to way,\nI doubted if I should ever come back.",
+      "I shall be telling this with a sigh\nSomewhere ages and ages hence:\nTwo roads diverged in a wood, and I—\nI took the one less traveled by,\nAnd that has made all the difference."
+    ]
+  },
+  {
+    title: "The Waste Land (Opening)",
+    author: "T.S. Eliot",
+    year: "1922",
+    preview: "April is the cruellest month, breeding\nLilacs out of the dead land",
+    palette: ["#080808","#141010","#b4a090"],
+    stanzas: [
+      "April is the cruellest month, breeding\nLilacs out of the dead land, mixing\nMemory and desire, stirring\nDull roots with spring rain.",
+      "Winter kept us warm, covering\nEarth in forgetful snow, feeding\nA little life with dried tubers.",
+      "Summer surprised us, coming over the Starnbergersee\nWith a shower of rain; we stopped in the colonnade,\nAnd went on in sunlight, into the Hofgarten,\nAnd drank coffee, and talked for an hour.",
+      "Bin gar keine Russin, stamm' aus Litauen, echt deutsch.\nAnd when we were children, staying at the archduke's,\nMy cousin's, he took me out on a sled,\nAnd I was frightened. He said, Marie,\nMarie, hold on tight. And down we went.",
+      "In the mountains, there you feel free.\nI read, much of the night, and go south in the winter."
+    ]
+  },
+  {
+    title: "Do Not Go Gentle",
+    author: "Dylan Thomas",
+    year: "1947",
+    preview: "Do not go gentle into that good night,\nOld age should burn and rave at close of day",
+    palette: ["#060808","#0a1018","#7ecac8"],
+    stanzas: [
+      "Do not go gentle into that good night,\nOld age should burn and rave at close of day;\nRage, rage against the dying of the light.",
+      "Though wise men at their end know dark is right,\nBecause their words had forked no lightning they\nDo not go gentle into that good night.",
+      "Good men, the last wave by, crying how bright\nTheir frail deeds might have danced in a green bay,\nRage, rage against the dying of the light.",
+      "Wild men who caught and sang the sun in flight,\nAnd learn, too late, they grieved it on its way,\nDo not go gentle into that good night.",
+      "Grave men, near death, who see with blinding sight\nBlind eyes could blaze like meteors and be gay,\nRage, rage against the dying of the light.",
+      "And you, my father, there on the sad height,\nCurse, bless, me now with your fierce tears, I pray.\nDo not go gentle into that good night.\nRage, rage against the dying of the light."
+    ]
+  },
+  {
+    title: "Annabel Lee",
+    author: "Edgar Allan Poe",
+    year: "1849",
+    preview: "It was many and many a year ago,\nIn a kingdom by the sea",
+    palette: ["#08060e","#100810","#9060a8"],
+    stanzas: [
+      "It was many and many a year ago,\n   In a kingdom by the sea,\nThat a maiden there lived whom you may know\n   By the name of Annabel Lee;",
+      "And this maiden she lived with no other thought\n   Than to love and be loved by me.",
+      "I was a child and she was a child,\n   In this kingdom by the sea:\nBut we loved with a love that was more than love—\n   I and my Annabel Lee—",
+      "With a love that the wingèd seraphs of Heaven\n   Coveted her and me.",
+      "And this was the reason that, long ago,\n   In this kingdom by the sea,\nA wind blew out of a cloud, chilling\n   My beautiful Annabel Lee;",
+      "So that her highborn kinsmen came\n   And bore her away from me,\nTo shut her up in a sepulchre\n   In this kingdom by the sea.",
+      "The angels, not half so happy in Heaven,\n   Went envying her and me;—\nYes! that was the reason (as all men know,\n   In this kingdom by the sea)\nThat the wind came out of the cloud by night,\n   Chilling and killing my Annabel Lee.",
+      "But our love it was stronger by far than the love\n   Of those who were older than we—\n   Of many far wiser than we—\nAnd neither the angels in Heaven above\n   Nor the demons down under the sea\nCan ever dissever my soul from the soul\n   Of the beautiful Annabel Lee;",
+      "For the moon never beams, without bringing me dreams\n   Of the beautiful Annabel Lee;\nAnd the stars never rise, but I feel the bright eyes\n   Of the beautiful Annabel Lee;\nAnd so, all the night-tide, I lie down by the side\n   Of my darling—my darling—my life and my bride,\n   In her sepulchre there by the sea—\n   In her tomb by the sounding sea."
+    ]
+  },
+  {
+    title: "Wild Geese",
+    author: "Mary Oliver",
+    year: "1986",
+    preview: "You do not have to be good.\nYou do not have to walk on your knees",
+    palette: ["#080e08","#0a1408","#90c880"],
+    stanzas: [
+      "You do not have to be good.\nYou do not have to walk on your knees\nfor a hundred miles through the desert, repenting.\nYou only have to let the soft animal of your body\nlove what it loves.",
+      "Tell me about despair, yours, and I will tell you mine.\nMeanwhile the world goes on.\nMeanwhile the sun and the clear pebbles of the rain\nare moving across the landscapes,\nover the prairies and the deep trees,\nthe mountains and the rivers.",
+      "Meanwhile the wild geese, high in the clean blue air,\nare heading home again.\nWhoever you are, no matter how lonely,\nthe world offers itself to your imagination,\ncalls to you like the wild geese, harsh and exciting—\nover and over announcing your place\nin the family of things."
+    ]
+  },
+  {
+    title: "Bohemia",
+    author: "Dorothy Parker",
+    year: "1927",
+    preview: "Authors and actors and artists and such\nNever know nothing, and never know much",
+    palette: ["#0e080a","#1a080e","#c8a06e"],
+    stanzas: [
+      "Authors and actors and artists and such\nNever know nothing, and never know much.\nSculptors and singers and those of their kidney\nTell their affairs from Seattle to Sydney.",
+      "Playwrights and poets and such horses' necks\nStart off from anywhere, end up at sex.\nDiarists, critics, and similar roe\nNever say nothing, and never say no.",
+      "People Who Do Things exceed my endurance;\nGod, for a man that solicits insurance!"
+    ]
+  },
+  {
+    title: "The Love Song of J. Alfred Prufrock (Opening)",
+    author: "T.S. Eliot",
+    year: "1915",
+    preview: "Let us go then, you and I,\nWhen the evening is spread out",
+    palette: ["#060808","#0a1010","#c8c890"],
+    stanzas: [
+      "Let us go then, you and I,\nWhen the evening is spread out against the sky\nLike a patient etherized upon a table;\nLet us go, through certain half-deserted streets,\nThe muttering retreats\nOf restless nights in one-night cheap hotels\nAnd sawdust restaurants with oyster-shells:",
+      "Streets that follow like a tedious argument\nOf insidious intent\nTo lead you to an overwhelming question...\nOh, do not ask, \"What is it?\"\nLet us go and make our visit.",
+      "In the room the women come and go\nTalking of Michelangelo.",
+      "The yellow fog that rubs its back upon the window-panes,\nThe yellow smoke that rubs its muzzle on the window-panes\nLicked its tongue into the corners of the evening,\nLingered upon the pools that stand in drains,\nLet fall upon its back the soot that falls from chimneys,\nSlipped by the terrace, made a sudden leap,\nAnd seeing that it was a soft October night,\nCurled once about the house, and fell asleep.",
+      "And indeed there will be time\nFor the yellow smoke that slides along the street,\nRubbing its back upon the window-panes;\nThere will be time, there will be time\nTo prepare a face to meet the faces that you meet;",
+      "There will be time to murder and create,\nAnd time for all the works and days of hands\nThat lift and drop a question on your plate;\nTime for you and time for me,\nAnd time yet for a hundred indecisions,\nAnd for a hundred visions and revisions,\nBefore the taking of a toast and tea.",
+      "Do I dare\nDisturb the universe?\nIn a minute there is time\nFor decisions and revisions which a minute will reverse."
+    ]
+  }
+];
+
+/* ──────────────────────────────
+   CARD BACKGROUND GENERATORS
+────────────────────────────── */
+function makeBg(p, idx) {
+  const [c1, c2, accent] = p.palette;
+  const scenes = [
+    // 0 — radial glow + lines
+    `<svg viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="450" fill="${c1}"/>
+      <defs><radialGradient id="rg${idx}" cx="50%" cy="60%" r="55%">
+        <stop offset="0%" stop-color="${accent}" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="${c1}" stop-opacity="0"/>
+      </radialGradient></defs>
+      <rect width="300" height="450" fill="url(#rg${idx})"/>
+      <line x1="0" y1="225" x2="300" y2="225" stroke="${accent}" stroke-width="0.4" opacity="0.12"/>
+      <line x1="150" y1="0" x2="150" y2="450" stroke="${accent}" stroke-width="0.3" opacity="0.08"/>
+      <circle cx="150" cy="225" r="80" fill="none" stroke="${accent}" stroke-width="0.5" opacity="0.1"/>
+      <circle cx="150" cy="225" r="140" fill="none" stroke="${accent}" stroke-width="0.3" opacity="0.06"/>
+    </svg>`,
+    // 1 — diagonal bars
+    `<svg viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="450" fill="${c1}"/>
+      <defs><linearGradient id="lg${idx}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${c2}"/>
+        <stop offset="100%" stop-color="${c1}"/>
+      </linearGradient></defs>
+      <rect width="300" height="450" fill="url(#lg${idx})" opacity="0.6"/>
+      <line x1="-50" y1="150" x2="350" y2="550" stroke="${accent}" stroke-width="0.5" opacity="0.1"/>
+      <line x1="-50" y1="80" x2="350" y2="480" stroke="${accent}" stroke-width="0.3" opacity="0.07"/>
+      <line x1="-50" y1="220" x2="350" y2="620" stroke="${accent}" stroke-width="0.4" opacity="0.09"/>
+    </svg>`,
+    // 2 — dots grid
+    `<svg viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="450" fill="${c1}"/>
+      <defs><radialGradient id="dg${idx}" cx="30%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="${accent}" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="${c1}" stop-opacity="0"/>
+      </radialGradient></defs>
+      <rect width="300" height="450" fill="url(#dg${idx})"/>
+      ${Array.from({length:6}, (_,r) => Array.from({length:4}, (_,c2) =>
+        `<circle cx="${40+c2*75}" cy="${60+r*70}" r="1.2" fill="${accent}" opacity="0.12"/>`
+      ).join('')).join('')}
+    </svg>`,
+  ];
+  return scenes[idx % scenes.length];
+}
+
+/* ──────────────────────────────
+   BUILD GRID
+────────────────────────────── */
+const grid = document.getElementById('poetryGrid');
+
+poems.forEach((poem, i) => {
+  const card = document.createElement('div');
+  card.className = 'poem-card';
+  card.innerHTML = `
+    <div class="card-bg">${makeBg(poem, i)}</div>
+    <div class="card-gradient"></div>
+    <div class="card-preview">
+      <div class="preview-lines">${poem.preview}</div>
+    </div>
+    <div class="card-footer">
+      <div class="card-number">${String(i+1).padStart(2,'0')}</div>
+      <div class="card-title">${poem.title}</div>
+      <div class="card-author">${poem.author} · ${poem.year}</div>
+      <span class="card-read">Read poem →</span>
+    </div>
+  `;
+  card.addEventListener('click', () => openReader(i));
+  grid.appendChild(card);
+});
+
+/* ──────────────────────────────
+   READER
+────────────────────────────── */
+const overlay   = document.getElementById('readerOverlay');
+const column    = document.getElementById('readerColumn');
+const scroll    = document.getElementById('readerScroll');
+const progress  = document.getElementById('readerProgress');
+
+function openReader(idx) {
+  const poem = poems[idx];
+  column.innerHTML = `
+    <div class="reader-meta">${String(idx+1).padStart(2,'0')} / ${String(poems.length).padStart(2,'0')} · ${poem.year}</div>
+    <h1 class="reader-title">${poem.title}</h1>
+    <div class="reader-author">${poem.author}</div>
+    <div class="reader-divider"></div>
+    <div class="reader-body">
+      ${poem.stanzas.map(s => `<div class="stanza"><p>${s}</p></div>`).join('')}
+    </div>
+    <div class="reader-end">— ✦ —</div>
+  `;
+  scroll.scrollTop = 0;
+  progress.style.width = '0%';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReader() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close on backdrop
+document.getElementById('readerBackdrop').addEventListener('click', closeReader);
+
+// Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeReader();
+});
+
+// Read progress bar
+scroll.addEventListener('scroll', () => {
+  const max = scroll.scrollHeight - scroll.clientHeight;
+  const pct = max > 0 ? (scroll.scrollTop / max) * 100 : 0;
+  progress.style.width = pct + '%';
+});
+</script>
+</body>
+</html>
